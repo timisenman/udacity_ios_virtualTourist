@@ -10,7 +10,7 @@ import Foundation
 
 struct Constants {
     
-    struct Flick {
+    struct Flickr {
         static let APIScheme = "https"
         static let APIHost = "api.flickr.com"
         static let APIPath = "/services/rest"
@@ -53,5 +53,10 @@ struct Constants {
     
     struct FlickrResponseValues {
         static let OKStatus = "ok"
+    }
+    
+    struct StoryboardIDs {
+        static let LocationView = "LocationCollectionViewController"
+        static let MapView = "MapViewController"
     }
 }

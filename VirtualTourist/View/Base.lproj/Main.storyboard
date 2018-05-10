@@ -74,14 +74,15 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hHT-3h-3Sq">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="hHT-3h-3Sq">
                                 <rect key="frame" x="0.0" y="64" width="375" height="127"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
-                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="RUU-Vd-uFj">
-                                <rect key="frame" x="0.0" y="199" width="375" height="468"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="RUU-Vd-uFj">
+                                <rect key="frame" x="0.0" y="199" width="375" height="399"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="399" id="n6v-Pc-cAz"/>
+                                </constraints>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="bAh-k2-UN1">
                                     <size key="itemSize" width="100" height="100"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -96,29 +97,51 @@
                                             <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DXD-Zh-yIR">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="DXD-Zh-yIR">
                                                     <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 </imageView>
                                             </subviews>
                                         </view>
+                                        <constraints>
+                                            <constraint firstItem="DXD-Zh-yIR" firstAttribute="top" secondItem="EK3-OF-bd1" secondAttribute="top" id="Fle-pU-yfk"/>
+                                            <constraint firstItem="DXD-Zh-yIR" firstAttribute="leading" secondItem="EK3-OF-bd1" secondAttribute="leading" id="NTc-n5-JBP"/>
+                                            <constraint firstAttribute="bottom" secondItem="DXD-Zh-yIR" secondAttribute="bottom" id="QWa-BK-RaN"/>
+                                            <constraint firstAttribute="trailing" secondItem="DXD-Zh-yIR" secondAttribute="trailing" id="t7u-aM-koj"/>
+                                        </constraints>
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dFQ-Zj-pVl">
-                                <rect key="frame" x="0.0" y="595" width="375" height="72"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Button"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dFQ-Zj-pVl">
+                                <rect key="frame" x="0.0" y="596" width="375" height="71"/>
+                                <color key="backgroundColor" red="0.0" green="0.82392005558720705" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
+                                <state key="normal" title="Dismiss">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
                                 <connections>
-                                    <action selector="confirmImageSelectionAction:" destination="kqx-ea-nT8" eventType="touchUpInside" id="FRn-1S-OQN"/>
+                                    <action selector="confirmImageSelectionAction:" destination="kqx-ea-nT8" eventType="touchUpInside" id="5e1-vZ-O4L"/>
                                 </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="RUU-Vd-uFj" secondAttribute="trailing" id="6fz-Ic-kZ9"/>
+                            <constraint firstItem="RUU-Vd-uFj" firstAttribute="trailing" secondItem="hHT-3h-3Sq" secondAttribute="trailing" id="FtP-tb-bJk"/>
+                            <constraint firstItem="hHT-3h-3Sq" firstAttribute="top" secondItem="8nk-cX-V8g" secondAttribute="top" id="KbN-pH-0Kh"/>
+                            <constraint firstItem="dFQ-Zj-pVl" firstAttribute="top" secondItem="RUU-Vd-uFj" secondAttribute="bottom" constant="-2" id="NW2-jo-fFc"/>
+                            <constraint firstItem="RUU-Vd-uFj" firstAttribute="leading" secondItem="xQP-aH-hgX" secondAttribute="leading" id="PAe-fQ-4Ua"/>
+                            <constraint firstItem="RUU-Vd-uFj" firstAttribute="leading" secondItem="hHT-3h-3Sq" secondAttribute="leading" id="Twj-gE-gXO"/>
+                            <constraint firstItem="dFQ-Zj-pVl" firstAttribute="bottom" secondItem="8nk-cX-V8g" secondAttribute="bottom" id="YUh-6A-1qB"/>
+                            <constraint firstItem="RUU-Vd-uFj" firstAttribute="top" secondItem="hHT-3h-3Sq" secondAttribute="bottom" constant="8" id="cdD-hx-qFR"/>
+                            <constraint firstItem="RUU-Vd-uFj" firstAttribute="trailing" secondItem="dFQ-Zj-pVl" secondAttribute="trailing" id="dpI-AW-yVh"/>
+                            <constraint firstItem="RUU-Vd-uFj" firstAttribute="leading" secondItem="dFQ-Zj-pVl" secondAttribute="leading" id="fzF-Js-JPf"/>
+                            <constraint firstItem="RUU-Vd-uFj" firstAttribute="top" secondItem="hHT-3h-3Sq" secondAttribute="bottom" constant="8" id="iTK-fo-dNS"/>
+                            <constraint firstItem="dFQ-Zj-pVl" firstAttribute="top" secondItem="RUU-Vd-uFj" secondAttribute="bottom" constant="-2" id="kWk-cp-Co1"/>
+                            <constraint firstItem="8nk-cX-V8g" firstAttribute="bottom" secondItem="RUU-Vd-uFj" secondAttribute="bottom" constant="69" id="oSH-Yb-762"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="8nk-cX-V8g"/>
                     </view>
                     <connections>
-                        <outlet property="collectionViewAction" destination="dFQ-Zj-pVl" id="7Fp-US-Buo"/>
                         <outlet property="collectionViewActionButton" destination="dFQ-Zj-pVl" id="KzW-8H-4GM"/>
                         <outlet property="mapZoomImage" destination="hHT-3h-3Sq" id="gWB-j1-AIa"/>
                     </connections>

@@ -22,6 +22,7 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
 
     
     @IBAction func confirmImageSelectionAction(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
     }
     
 }
