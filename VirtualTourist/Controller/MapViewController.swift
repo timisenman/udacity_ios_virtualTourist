@@ -83,8 +83,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 
 extension MapViewController {
     func storyBoardSegue() {
-        let view = storyboard?.instantiateViewController(withIdentifier: Constants.StoryboardIDs.LocationView) as! UIViewController
-        present(view, animated: true, completion: nil)
+        performSegue(withIdentifier: Constants.StoryboardIDs.SegueID, sender: self)
         print("Segue performed.")
     }
 }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8D477CFA20A791800030AD25 /* CustomCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D477CF920A791800030AD25 /* CustomCollectionViewCell.swift */; };
 		8D47F33A209D223000F5D1CF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D47F339209D223000F5D1CF /* AppDelegate.swift */; };
 		8D47F33C209D223000F5D1CF /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D47F33B209D223000F5D1CF /* MapViewController.swift */; };
 		8D47F33F209D223100F5D1CF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D47F33D209D223100F5D1CF /* Main.storyboard */; };
@@ -21,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8D477CF920A791800030AD25 /* CustomCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCollectionViewCell.swift; sourceTree = "<group>"; };
 		8D47F336209D223000F5D1CF /* VirtualTourist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VirtualTourist.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D47F339209D223000F5D1CF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8D47F33B209D223000F5D1CF /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 			isa = PBXGroup;
 			children = (
 				8D47F33D209D223100F5D1CF /* Main.storyboard */,
+				8D477CF920A791800030AD25 /* CustomCollectionViewCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -178,6 +181,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D47F352209D22EF00F5D1CF /* Constants.swift in Sources */,
+				8D477CFA20A791800030AD25 /* CustomCollectionViewCell.swift in Sources */,
 				8D47F33C209D223000F5D1CF /* MapViewController.swift in Sources */,
 				8D47F35B209D2D0200F5D1CF /* VTClient.swift in Sources */,
 				8D47F357209D2B6500F5D1CF /* VirtualTourist.xcdatamodeld in Sources */,

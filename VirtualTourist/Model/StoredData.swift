@@ -11,10 +11,12 @@ import UIKit
 import MapKit
 
 class locationImages {
-    var imageArray: [UIImage] = [UIImage]()
+    static let shared = locationImages()
+    var imageArray: [String] = [String]()
 }
 
 class mapLocations {
+    static let shared = mapLocations()
     var pins: [MKAnnotation] = [MKAnnotation]()
     
 }

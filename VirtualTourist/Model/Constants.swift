@@ -21,7 +21,6 @@ struct Constants {
         static let APIKey = "9f2d4591298eeedac39f2af636aebbc9"
         static let ResponseFormat = "json"
         static let DisableJSONCallback = "1" /* 1 means "yes" */
-        static let GeoDataMethod = "flickr.galleries.getWithGeoData"
         static let MediumURL = "url_m"
         static let UseSafeSearch = "1"
         static let latitude = "lat"
@@ -58,5 +57,8 @@ struct Constants {
     struct StoryboardIDs {
         static let LocationView = "LocationCollectionViewController"
         static let MapView = "MapViewController"
+        static let SegueID = "locationCollectionSegue"
+        static let CellReuseID = "imageCell"
+        static let PinReuseID = "pin"
     }
 }
