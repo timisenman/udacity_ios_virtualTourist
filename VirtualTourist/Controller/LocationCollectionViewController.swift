@@ -57,7 +57,6 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CustomCollectionViewCell
         
         let locImage = locImages[(indexPath as NSIndexPath).row]
-        print(locImage)
         if let imageData = try? Data(contentsOf: URL(string: locImage)!) {
                 cell.cellImageView.image = UIImage(data: imageData)
         }

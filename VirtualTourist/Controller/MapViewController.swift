@@ -62,12 +62,12 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         if press.state == .began {
             let location = press.location(in: mapView)
             let coordinates = mapView.convert(location, toCoordinateFrom: mapView)
-            
             let annotation = MKPointAnnotation()
-            annotation.coordinate = coordinates
-            annotation.title = "Lat/Long:"
-            annotation.subtitle = "\(annotation.coordinate.latitude)\n\(annotation.coordinate.longitude)"
             
+            annotation.coordinate = coordinates
+            getLocationName(annotation.coordinate) { (locationName) in
+                annotation.title = locationName
+            }
             
             mapView.addAnnotation(annotation)
         }
@@ -79,24 +79,25 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         mapView.addGestureRecognizer(gesture)
     }
     
-//    func getLocationName(_ location: CLLocation, completionHandler: @escaping(_ placemark: CLPlacemark?) -> Void) {
-//        //Getting the string of location
-//        let geocoder = CLGeocoder()
-//
-//        geocoder.reverseGeocodeLocation(location) { (placemark, error) in
-//            guard (error == nil) else {
-//                print("Error getting the location name.")
-//                return
-//            }
-//
-//            //get first item in placemark array [0]
-//
-//            completionHandler(placemark)
-//        }
-//
-//    }
-    
-
+    func getLocationName(_ location: CLLocationCoordinate2D, completionHandler: @escaping(_ locationName: String) -> Void) {
+        //Getting the string of location
+        let geocoder = CLGeocoder()
+        
+        let mapLat: CLLocationDegrees = location.latitude
+        let mapLong: CLLocationDegrees = location.longitude
+        let newLocation = CLLocation(latitude: mapLat, longitude: mapLong)
+        
+        geocoder.reverseGeocodeLocation(newLocation) { (placemark, error) in
+            if error == nil {
+                if let newLocationString = placemark?[0] {
+                    completionHandler(String(describing: newLocationString))
+                }
+                
+            } else {
+                print("Could not convert location to string.")
+            }
+        }
+    }
 }
 
 extension MapViewController {
