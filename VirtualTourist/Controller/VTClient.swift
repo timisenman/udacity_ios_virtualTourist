@@ -18,7 +18,8 @@ class VTClient: NSObject {
         super.init()
     }
     
-    func getFromLatLong(/*lat: Float, lon: Float,*/_ completionHandler: @escaping(_ success: Bool, _ errorString: String?) -> Void) {
+    func getFromLatLong(/*lat: Float, lon: Float,*/ completionHandler: @escaping(_ data: [String], _ success: Bool, _ errorString: String?) -> Void) {
+        var urlArray: [String] = [String]()
         let url = URL(string: "https://api.flickr.com/services/rest?method=flickr.photos.search&api_key=9f2d4591298eeedac39f2af636aebbc9&lat=35.708145&lon=139.732445&extras=url_m&format=json&nojsoncallback=?&per_page=25")
         let request = URLRequest(url: url!)
         
@@ -51,16 +52,16 @@ class VTClient: NSObject {
             
             for photo in photoDict {
                 if let imageUrl = photo["url_m"] as? String {
-                    DispatchQueue.main.async {
-                        locationImages.shared.imageArray.append(imageUrl)
+                    DispatchQueue.main.sync {
+                        urlArray.append(imageUrl)
+//                        locationImages.shared.imageArray.append(imageUrl)
                     }
                 }
             }
-            print("Image count after parsing: \(locationImages.shared.imageArray.count)")
-            completionHandler(true, "Images, dawg.")
+            completionHandler(urlArray, true, "Try these images")
+//            print("Image count after parsing: \(locationImages.shared.imageArray.count)")
             
         }
         task.resume()
-        
     }
 }

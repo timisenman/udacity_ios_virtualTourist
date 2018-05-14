@@ -10,7 +10,7 @@ import UIKit
 import MapKit
 import CoreData
 
-class MapViewController: UIViewController, MKMapViewDelegate {
+class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate {
 
     @IBOutlet weak var editPinsButton: UIBarButtonItem!
     @IBOutlet weak var mapView: MKMapView!
@@ -68,6 +68,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             annotation.title = "Lat/Long:"
             annotation.subtitle = "\(annotation.coordinate.latitude)\n\(annotation.coordinate.longitude)"
             
+            
             mapView.addAnnotation(annotation)
         }
     }
@@ -77,6 +78,23 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         gesture.minimumPressDuration = 0.5
         mapView.addGestureRecognizer(gesture)
     }
+    
+//    func getLocationName(_ location: CLLocation, completionHandler: @escaping(_ placemark: CLPlacemark?) -> Void) {
+//        //Getting the string of location
+//        let geocoder = CLGeocoder()
+//
+//        geocoder.reverseGeocodeLocation(location) { (placemark, error) in
+//            guard (error == nil) else {
+//                print("Error getting the location name.")
+//                return
+//            }
+//
+//            //get first item in placemark array [0]
+//
+//            completionHandler(placemark)
+//        }
+//
+//    }
     
 
 }

@@ -151,6 +151,7 @@
                     <connections>
                         <outlet property="collectionViewActionButton" destination="dFQ-Zj-pVl" id="KzW-8H-4GM"/>
                         <outlet property="mapZoomImage" destination="hHT-3h-3Sq" id="gWB-j1-AIa"/>
+                        <outlet property="photoTableView" destination="RUU-Vd-uFj" id="Q0B-Za-bO3"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="snv-vf-nky" userLabel="First Responder" sceneMemberID="firstResponder"/>
