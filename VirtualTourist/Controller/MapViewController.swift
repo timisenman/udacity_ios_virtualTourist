@@ -92,7 +92,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
                 if let newLocationString = placemark?[0] {
                     completionHandler(String(describing: newLocationString))
                 }
-                
             } else {
                 print("Could not convert location to string.")
             }
