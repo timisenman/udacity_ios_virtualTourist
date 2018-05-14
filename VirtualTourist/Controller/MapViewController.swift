@@ -68,7 +68,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
             getLocationName(annotation.coordinate) { (locationName) in
                 annotation.title = locationName
             }
-            
             mapView.addAnnotation(annotation)
         }
     }
@@ -90,7 +89,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         geocoder.reverseGeocodeLocation(newLocation) { (placemark, error) in
             if error == nil {
                 if let newLocationString = placemark?[0] {
-                    completionHandler(String(describing: newLocationString))
+                    completionHandler("\(newLocationString.locality!), \(newLocationString.country!)")
                 }
             } else {
                 print("Could not convert location to string.")
