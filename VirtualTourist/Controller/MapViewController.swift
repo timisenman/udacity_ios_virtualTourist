@@ -14,19 +14,37 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
 
     @IBOutlet weak var editPinsButton: UIBarButtonItem!
     @IBOutlet weak var mapView: MKMapView!
+    
+    var dataController: DataController!
+    var mapPins: [LocationPin] = [LocationPin]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         configureMap()
         configureGestureRecognizer()
+        
+        let fetchRequest: NSFetchRequest<LocationPin> = LocationPin.fetchRequest()
+        let sortDescriptors = NSSortDescriptor(key: "creationDate", ascending: false)
+        
+        fetchRequest.sortDescriptors = [sortDescriptors]
+        if let results = try? dataController.viewContext.fetch(fetchRequest) {
+            mapPins = results
+        }
     }
     
+    //MARK: General Configurations
     func configureMap() {
         mapView.delegate = self
         let location = CLLocationCoordinate2DMake(35.6895, 139.6917)
         let mapSpan = MKCoordinateSpanMake(25.0, 25.0)
         let region = MKCoordinateRegionMake(location, mapSpan)
         self.mapView.setRegion(region, animated: true)
+    }
+    
+    func configureGestureRecognizer() {
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(addMapAnnotation(press:)))
+        gesture.minimumPressDuration = 0.5
+        mapView.addGestureRecognizer(gesture)
     }
     
     //MARK: Map View Protocols
@@ -72,13 +90,8 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         }
     }
     
-    func configureGestureRecognizer() {
-        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(addMapAnnotation(press:)))
-        gesture.minimumPressDuration = 0.5
-        mapView.addGestureRecognizer(gesture)
-    }
-    
-    func getLocationName(_ location: CLLocationCoordinate2D, completionHandler: @escaping(_ locationName: String) -> Void) {
+    //MARK: Callout Display Logic
+    func getLocationName(_ location: CLLocationCoordinate2D, completionHandler: @escaping(_ locationName: String?) -> Void) {
         //Getting the string of location
         let geocoder = CLGeocoder()
         
@@ -92,7 +105,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
                     completionHandler("\(newLocationString.locality!), \(newLocationString.country!)")
                 }
             } else {
-                print("Could not convert location to string.")
+                completionHandler(nil)
             }
         }
     }

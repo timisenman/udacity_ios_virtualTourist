@@ -18,6 +18,8 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     
 //    let locImages = locationImages.shared.imageArray
     var locImages: [String] = [String]()
+    var receivedLat: Float = 0.0
+    var receivedLong: Float = 0.0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,7 +29,8 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        VTClient.shared.getFromLatLong { (data, success, string) in
+        //Get Lat/Long from Core Data. Not from a Storyboard Segue
+        VTClient.shared.getFromLatLong(lat:receivedLat, long: receivedLong) { (data, success, string) in
             if success {
                 print(string!)
                 DispatchQueue.main.async {
