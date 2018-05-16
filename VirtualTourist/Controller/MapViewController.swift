@@ -29,6 +29,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         fetchRequest.sortDescriptors = [sortDescriptors]
         if let results = try? dataController.viewContext.fetch(fetchRequest) {
             mapPins = results
+            print(results)
         }
     }
     
@@ -82,11 +83,20 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
             let coordinates = mapView.convert(location, toCoordinateFrom: mapView)
             let annotation = MKPointAnnotation()
             
+            let mapPin  = LocationPin(context: dataController.viewContext)
+            mapPin.creationDate = Date()
+            mapPin.latitude = Float(annotation.coordinate.latitude)
+            mapPin.longitude = Float(annotation.coordinate.longitude)
+            
             annotation.coordinate = coordinates
             getLocationName(annotation.coordinate) { (locationName) in
                 annotation.title = locationName
+                mapPin.cityName = locationName
             }
+            
             mapView.addAnnotation(annotation)
+            mapPins.insert(mapPin, at: 0)
+            try? dataController.viewContext.save()
         }
     }
     
