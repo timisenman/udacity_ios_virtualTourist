@@ -49,15 +49,20 @@
                     </view>
                     <navigationItem key="navigationItem" id="Mwv-p5-I6T">
                         <barButtonItem key="rightBarButtonItem" style="plain" id="e2u-wp-Ohd">
-                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="c4m-kZ-7Ll" userLabel="Edit">
-                                <rect key="frame" x="276" y="7" width="83" height="30"/>
+                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="c4m-kZ-7Ll" userLabel="Edit">
+                                <rect key="frame" x="276" y="5" width="83" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Edit"/>
+                                <state key="normal" title="Edit">
+                                    <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                </state>
+                                <connections>
+                                    <action selector="removePins:" destination="BYZ-38-t0r" eventType="touchUpInside" id="1KV-4a-VjX"/>
+                                </connections>
                             </button>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="editPinsButton" destination="e2u-wp-Ohd" id="SES-PO-JS6"/>
+                        <outlet property="editPinsButton" destination="e2u-wp-Ohd" id="7w1-zd-SFJ"/>
                         <outlet property="mapView" destination="hOH-xK-LBG" id="hL6-bH-RPJ"/>
                         <segue destination="kqx-ea-nT8" kind="show" identifier="locationCollectionSegue" id="bkJ-Kc-Ipa"/>
                     </connections>

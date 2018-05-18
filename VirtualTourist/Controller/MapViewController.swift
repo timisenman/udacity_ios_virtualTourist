@@ -21,6 +21,8 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     var tempLat: Double = 0.0
     var tempLong: Double = 0.0
     
+    var editState: Bool = false
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,6 +46,47 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         gesture.minimumPressDuration = 0.5
         mapView.addGestureRecognizer(gesture)
     }
+    
+    //MARK: User Functionality
+    @objc func addMapAnnotation(press: UILongPressGestureRecognizer) {
+        if press.state == .began {
+            let location = press.location(in: mapView)
+            let coordinates = mapView.convert(location, toCoordinateFrom: mapView)
+            let annotation = MKPointAnnotation()
+            
+            let mapPin  = LocationPin(context: dataController.viewContext)
+            mapPin.creationDate = Date()
+            mapPin.latitude = coordinates.latitude
+            mapPin.longitude = coordinates.longitude
+            
+            annotation.coordinate = coordinates
+            getLocationName(annotation.coordinate) { (locationName) in
+                annotation.title = locationName
+                mapPin.cityName = locationName
+            }
+            
+            mapView.addAnnotation(annotation)
+            mapPins.insert(mapPin, at: 0)
+            try? dataController.viewContext.save()
+        }
+    }
+    
+    @IBAction func removePins(_ sender: Any) {
+        changeEditState()
+        
+    }
+    
+    func changeEditState() {
+        editState = !editState
+        print(editState)
+        
+        if editState == true {
+            editPinsButton.title = "Done"
+        } else {
+            editPinsButton.title = "Edit"
+        }
+    }
+    
     
     //MARK: Core Data Protocols
     fileprivate func fetchSavedPins() {
@@ -95,38 +138,26 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         let reuseId = "pin"
         let pinView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseId) as? MKPinAnnotationView
         
-        if control == view.rightCalloutAccessoryView {
-            print("Control tapped.")
-            if let annotationLat = view.annotation?.coordinate.latitude, let annotationLong = view.annotation?.coordinate.longitude {
-                tempLat = annotationLat
-                tempLong = annotationLong
+        //Conditional for editing here
+        if editState {
+            for pin in mapPins {
+                if pin.latitude == view.annotation?.coordinate.latitude {
+                    mapView.removeAnnotation(view.annotation!)
+                    mapPins.remove(at: mapPins.index(of: pin)!)
+                    dataController.viewContext.delete(pin)
+                    try? dataController.viewContext.save()
+                }
+            }    
+        } else {
+            if control == view.rightCalloutAccessoryView {
+                print("Control tapped.")
+                if let annotationLat = view.annotation?.coordinate.latitude, let annotationLong = view.annotation?.coordinate.longitude {
+                    tempLat = annotationLat
+                    tempLong = annotationLong
+                }
+                
+                self.performSegue(withIdentifier: Constants.StoryboardIDs.SegueID, sender: self)
             }
-            
-            self.performSegue(withIdentifier: Constants.StoryboardIDs.SegueID, sender: self)
-        }
-    }
-    
-    //MARK: Gesture Recognition Functions
-    @objc func addMapAnnotation(press: UILongPressGestureRecognizer) {
-        if press.state == .began {
-            let location = press.location(in: mapView)
-            let coordinates = mapView.convert(location, toCoordinateFrom: mapView)
-            let annotation = MKPointAnnotation()
-            
-            let mapPin  = LocationPin(context: dataController.viewContext)
-            mapPin.creationDate = Date()
-            mapPin.latitude = coordinates.latitude
-            mapPin.longitude = coordinates.longitude
-            
-            annotation.coordinate = coordinates
-            getLocationName(annotation.coordinate) { (locationName) in
-                annotation.title = locationName
-                mapPin.cityName = locationName
-            }
-            
-            mapView.addAnnotation(annotation)
-            mapPins.insert(mapPin, at: 0)
-            try? dataController.viewContext.save()
         }
     }
     
