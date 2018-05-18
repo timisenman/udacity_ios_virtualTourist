@@ -18,8 +18,8 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     
 //    let locImages = locationImages.shared.imageArray
     var locImages: [String] = [String]()
-    var receivedLat: Float = 0.0
-    var receivedLong: Float = 0.0
+    var mapViewLat: Double?
+    var mapViewLong: Double?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,17 +29,18 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        //Get Lat/Long from Core Data. Not from a Storyboard Segue
-        VTClient.shared.getFromLatLong(lat:receivedLat, long: receivedLong) { (data, success, string) in
-            if success {
-                print(string!)
-                DispatchQueue.main.async {
-                    self.locImages = data
-                    print("LocImages Count: \(data.count)")
-                    self.photoTableView.reloadData()
-                    
-                    if let imageData = try? Data(contentsOf: URL(string: self.locImages[0])!) {
-                        self.mapZoomImage.image = UIImage(data: imageData)
+        if let latitude = mapViewLat, let longitude = mapViewLong {
+            VTClient.shared.getFromLatLong(lat:latitude, long: longitude) { (data, success, string) in
+                if success {
+                    print(string!)
+                    DispatchQueue.main.async {
+                        self.locImages = data
+                        print("LocImages Count: \(data.count)")
+                        self.photoTableView.reloadData()
+                        
+                        if let imageData = try? Data(contentsOf: URL(string: self.locImages[0])!) {
+                            self.mapZoomImage.image = UIImage(data: imageData)
+                        }
                     }
                 }
             }

@@ -18,7 +18,7 @@ class VTClient: NSObject {
         super.init()
     }
     
-    func getFromLatLong(lat: Float, long: Float, completionHandler: @escaping(_ data: [String], _ success: Bool, _ errorString: String?) -> Void) {
+    func getFromLatLong(lat: Double, long: Double, completionHandler: @escaping(_ data: [String], _ success: Bool, _ errorString: String?) -> Void) {
         var urlArray: [String] = [String]()
         let url = URL(string: "https://api.flickr.com/services/rest?method=flickr.photos.search&api_key=9f2d4591298eeedac39f2af636aebbc9&lat=\(lat)&lon=\(long)&extras=url_m&format=json&nojsoncallback=?&per_page=21")
         

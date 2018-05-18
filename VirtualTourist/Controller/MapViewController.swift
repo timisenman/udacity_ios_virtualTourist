@@ -17,20 +17,16 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     
     var dataController: DataController!
     var mapPins: [LocationPin] = [LocationPin]()
-
+    
+    var tempLat: Double = 0.0
+    var tempLong: Double = 0.0
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureMap()
         configureGestureRecognizer()
-        
-        let fetchRequest: NSFetchRequest<LocationPin> = LocationPin.fetchRequest()
-        let sortDescriptors = NSSortDescriptor(key: "creationDate", ascending: false)
-        
-        fetchRequest.sortDescriptors = [sortDescriptors]
-        if let results = try? dataController.viewContext.fetch(fetchRequest) {
-            mapPins = results
-            print(results)
-        }
+        fetchSavedPins()
     }
     
     //MARK: General Configurations
@@ -40,12 +36,41 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         let mapSpan = MKCoordinateSpanMake(25.0, 25.0)
         let region = MKCoordinateRegionMake(location, mapSpan)
         self.mapView.setRegion(region, animated: true)
+        
     }
     
     func configureGestureRecognizer() {
         let gesture = UILongPressGestureRecognizer(target: self, action: #selector(addMapAnnotation(press:)))
         gesture.minimumPressDuration = 0.5
         mapView.addGestureRecognizer(gesture)
+    }
+    
+    //MARK: Core Data Protocols
+    fileprivate func fetchSavedPins() {
+        let fetchRequest: NSFetchRequest<LocationPin> = LocationPin.fetchRequest()
+        let sortDescriptors = NSSortDescriptor(key: "creationDate", ascending: false)
+        
+        fetchRequest.sortDescriptors = [sortDescriptors]
+        if let results = try? dataController.viewContext.fetch(fetchRequest) {
+            mapPins = results
+            for location in results {
+                print(location.cityName ?? "No name")
+                print("\(location.latitude), \(location.longitude)")
+            }
+        }
+        
+        var savedPins: [MKPointAnnotation] = [MKPointAnnotation]()
+        for pin in mapPins {
+            let lat = CLLocationDegrees(pin.latitude)
+            let long = CLLocationDegrees(pin.longitude)
+            let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
+            
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = coordinate
+            annotation.title = pin.cityName
+            savedPins.append(annotation)
+        }
+       self.mapView.addAnnotations(savedPins)
     }
     
     //MARK: Map View Protocols
@@ -72,7 +97,12 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         
         if control == view.rightCalloutAccessoryView {
             print("Control tapped.")
-            storyBoardSegue()
+            if let annotationLat = view.annotation?.coordinate.latitude, let annotationLong = view.annotation?.coordinate.longitude {
+                tempLat = annotationLat
+                tempLong = annotationLong
+            }
+            
+            self.performSegue(withIdentifier: Constants.StoryboardIDs.SegueID, sender: self)
         }
     }
     
@@ -85,8 +115,8 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
             
             let mapPin  = LocationPin(context: dataController.viewContext)
             mapPin.creationDate = Date()
-            mapPin.latitude = Float(annotation.coordinate.latitude)
-            mapPin.longitude = Float(annotation.coordinate.longitude)
+            mapPin.latitude = coordinates.latitude
+            mapPin.longitude = coordinates.longitude
             
             annotation.coordinate = coordinates
             getLocationName(annotation.coordinate) { (locationName) in
@@ -112,7 +142,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         geocoder.reverseGeocodeLocation(newLocation) { (placemark, error) in
             if error == nil {
                 if let newLocationString = placemark?[0] {
-                    completionHandler("\(newLocationString.locality!), \(newLocationString.country!)")
+                    completionHandler("\(newLocationString.locality ?? "?"), \(newLocationString.country ?? "?")")
                 }
             } else {
                 completionHandler(nil)
@@ -122,8 +152,13 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
 }
 
 extension MapViewController {
-    func storyBoardSegue() {
-        performSegue(withIdentifier: Constants.StoryboardIDs.SegueID, sender: self)
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == Constants.StoryboardIDs.SegueID {
+            let locationView = segue.destination as! LocationCollectionViewController
+            locationView.mapViewLat = tempLat
+            locationView.mapViewLong = tempLong
+            
+        }
         print("Segue performed.")
     }
 }

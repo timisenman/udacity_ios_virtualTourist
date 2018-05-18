@@ -11,12 +11,12 @@
     <entity name="LocationPin" representedClassName="LocationPin" syncable="YES" codeGenerationType="class">
         <attribute name="cityName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="creationDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
-        <attribute name="latitude" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="longitude" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="latitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="longitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <relationship name="locationPhotosArray" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocationPhoto" inverseName="pin" inverseEntity="LocationPhoto" syncable="YES"/>
     </entity>
     <elements>
         <element name="LocationPhoto" positionX="-54" positionY="18" width="128" height="133"/>
-        <element name="LocationPin" positionX="-207" positionY="18" width="119" height="118"/>
+        <element name="LocationPin" positionX="-207" positionY="18" width="119" height="120"/>
     </elements>
 </model>
