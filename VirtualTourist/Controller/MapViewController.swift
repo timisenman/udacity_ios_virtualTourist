@@ -14,6 +14,8 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
 
     @IBOutlet weak var editPinsButton: UIBarButtonItem!
     @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var navigationBar: UINavigationItem!
+    
     
     var dataController: DataController!
     var mapPins: [LocationPin] = [LocationPin]()
@@ -73,7 +75,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     
     @IBAction func removePins(_ sender: Any) {
         changeEditState()
-        
     }
     
     func changeEditState() {
@@ -82,8 +83,10 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         
         if editState == true {
             editPinsButton.title = "Done"
+            navigationBar.title = "Tap To Remove"
         } else {
             editPinsButton.title = "Edit"
+            navigationBar.title = ""
         }
     }
     
@@ -147,7 +150,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
                     dataController.viewContext.delete(pin)
                     try? dataController.viewContext.save()
                 }
-            }    
+            }
         } else {
             if control == view.rightCalloutAccessoryView {
                 print("Control tapped.")

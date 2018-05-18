@@ -6,6 +6,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -48,22 +49,16 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <navigationItem key="navigationItem" id="Mwv-p5-I6T">
-                        <barButtonItem key="rightBarButtonItem" style="plain" id="e2u-wp-Ohd">
-                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="c4m-kZ-7Ll" userLabel="Edit">
-                                <rect key="frame" x="276" y="5" width="83" height="34"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Edit">
-                                    <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
-                                </state>
-                                <connections>
-                                    <action selector="removePins:" destination="BYZ-38-t0r" eventType="touchUpInside" id="1KV-4a-VjX"/>
-                                </connections>
-                            </button>
+                        <barButtonItem key="rightBarButtonItem" title="Edit" id="Se1-Nc-0kn">
+                            <connections>
+                                <action selector="removePins:" destination="BYZ-38-t0r" id="VPq-9V-x8T"/>
+                            </connections>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="editPinsButton" destination="e2u-wp-Ohd" id="7w1-zd-SFJ"/>
+                        <outlet property="editPinsButton" destination="Se1-Nc-0kn" id="I2G-Fk-x27"/>
                         <outlet property="mapView" destination="hOH-xK-LBG" id="hL6-bH-RPJ"/>
+                        <outlet property="navigationBar" destination="Mwv-p5-I6T" id="fXO-PD-qKD"/>
                         <segue destination="kqx-ea-nT8" kind="show" identifier="locationCollectionSegue" id="bkJ-Kc-Ipa"/>
                     </connections>
                 </viewController>
@@ -79,9 +74,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="hHT-3h-3Sq">
-                                <rect key="frame" x="0.0" y="64" width="375" height="127"/>
-                            </imageView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="RUU-Vd-uFj">
                                 <rect key="frame" x="0.0" y="199" width="375" height="399"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -134,20 +126,22 @@
                                     <action selector="confirmImageSelectionAction:" destination="kqx-ea-nT8" eventType="touchUpInside" id="5e1-vZ-O4L"/>
                                 </connections>
                             </button>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="QfE-Kj-B6I">
+                                <rect key="frame" x="0.0" y="63" width="375" height="128"/>
+                            </mapView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="RUU-Vd-uFj" secondAttribute="trailing" id="6fz-Ic-kZ9"/>
-                            <constraint firstItem="RUU-Vd-uFj" firstAttribute="trailing" secondItem="hHT-3h-3Sq" secondAttribute="trailing" id="FtP-tb-bJk"/>
-                            <constraint firstItem="hHT-3h-3Sq" firstAttribute="top" secondItem="8nk-cX-V8g" secondAttribute="top" id="KbN-pH-0Kh"/>
+                            <constraint firstItem="QfE-Kj-B6I" firstAttribute="leading" secondItem="RUU-Vd-uFj" secondAttribute="leading" id="Juw-44-9wn"/>
                             <constraint firstItem="dFQ-Zj-pVl" firstAttribute="top" secondItem="RUU-Vd-uFj" secondAttribute="bottom" constant="-2" id="NW2-jo-fFc"/>
                             <constraint firstItem="RUU-Vd-uFj" firstAttribute="leading" secondItem="xQP-aH-hgX" secondAttribute="leading" id="PAe-fQ-4Ua"/>
-                            <constraint firstItem="RUU-Vd-uFj" firstAttribute="leading" secondItem="hHT-3h-3Sq" secondAttribute="leading" id="Twj-gE-gXO"/>
+                            <constraint firstItem="QfE-Kj-B6I" firstAttribute="top" secondItem="xQP-aH-hgX" secondAttribute="topMargin" constant="-1" id="UbD-en-iq4"/>
                             <constraint firstItem="dFQ-Zj-pVl" firstAttribute="bottom" secondItem="8nk-cX-V8g" secondAttribute="bottom" id="YUh-6A-1qB"/>
-                            <constraint firstItem="RUU-Vd-uFj" firstAttribute="top" secondItem="hHT-3h-3Sq" secondAttribute="bottom" constant="8" id="cdD-hx-qFR"/>
+                            <constraint firstItem="RUU-Vd-uFj" firstAttribute="top" secondItem="QfE-Kj-B6I" secondAttribute="bottom" constant="8" id="dpH-Xc-7az"/>
                             <constraint firstItem="RUU-Vd-uFj" firstAttribute="trailing" secondItem="dFQ-Zj-pVl" secondAttribute="trailing" id="dpI-AW-yVh"/>
                             <constraint firstItem="RUU-Vd-uFj" firstAttribute="leading" secondItem="dFQ-Zj-pVl" secondAttribute="leading" id="fzF-Js-JPf"/>
-                            <constraint firstItem="RUU-Vd-uFj" firstAttribute="top" secondItem="hHT-3h-3Sq" secondAttribute="bottom" constant="8" id="iTK-fo-dNS"/>
+                            <constraint firstItem="QfE-Kj-B6I" firstAttribute="centerX" secondItem="xQP-aH-hgX" secondAttribute="centerX" id="kAk-OH-yya"/>
                             <constraint firstItem="dFQ-Zj-pVl" firstAttribute="top" secondItem="RUU-Vd-uFj" secondAttribute="bottom" constant="-2" id="kWk-cp-Co1"/>
                             <constraint firstItem="8nk-cX-V8g" firstAttribute="bottom" secondItem="RUU-Vd-uFj" secondAttribute="bottom" constant="69" id="oSH-Yb-762"/>
                         </constraints>
@@ -155,7 +149,7 @@
                     </view>
                     <connections>
                         <outlet property="collectionViewActionButton" destination="dFQ-Zj-pVl" id="KzW-8H-4GM"/>
-                        <outlet property="mapZoomImage" destination="hHT-3h-3Sq" id="gWB-j1-AIa"/>
+                        <outlet property="locationZoomIn" destination="QfE-Kj-B6I" id="Q7a-Kj-4R1"/>
                         <outlet property="photoTableView" destination="RUU-Vd-uFj" id="Q0B-Za-bO3"/>
                     </connections>
                 </viewController>

@@ -7,14 +7,14 @@
 //
 
 import UIKit
+import MapKit
 import CoreData
 
-class LocationCollectionViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
+class LocationCollectionViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, MKMapViewDelegate {
     
-    @IBOutlet weak var mapZoomImage: UIImageView!
     @IBOutlet weak var collectionViewActionButton: UIButton!
     @IBOutlet weak var photoTableView: UICollectionView!
-    
+    @IBOutlet weak var locationZoomIn: MKMapView!
     
 //    let locImages = locationImages.shared.imageArray
     var locImages: [String] = [String]()
@@ -24,10 +24,12 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     override func viewDidLoad() {
         super.viewDidLoad()
         photoTableView.delegate = self
+        locationZoomIn.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        configureMapZoom()
         
         if let latitude = mapViewLat, let longitude = mapViewLong {
             VTClient.shared.getFromLatLong(lat:latitude, long: longitude) { (data, success, string) in
@@ -38,9 +40,6 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
                         print("LocImages Count: \(data.count)")
                         self.photoTableView.reloadData()
                         
-                        if let imageData = try? Data(contentsOf: URL(string: self.locImages[0])!) {
-                            self.mapZoomImage.image = UIImage(data: imageData)
-                        }
                     }
                 }
             }
@@ -50,6 +49,21 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     
     @IBAction func confirmImageSelectionAction(_ sender: Any) {
         print("Confirm button pressed.")
+    }
+    
+    func configureMapZoom() {
+        if let latitude = mapViewLat, let longitude = mapViewLong {
+            let zoomCoordinates = CLLocationCoordinate2DMake(latitude, longitude)
+            let mapSpan = MKCoordinateSpanMake(0.05, 0.05)
+            let mapRegion = MKCoordinateRegionMake(zoomCoordinates, mapSpan)
+            self.locationZoomIn.setRegion(mapRegion, animated: false)
+            
+            let coodinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = coodinates
+            self.locationZoomIn.addAnnotation(annotation)
+        }
+        locationZoomIn.isUserInteractionEnabled = false
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -72,5 +86,19 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         //
     }
     
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        let reuseId = "pin"
+        var pinView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseId) as? MKPinAnnotationView
+        
+        if pinView == nil {
+            pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
+            pinView!.canShowCallout = true
+            pinView!.pinTintColor = .red
+        }
+        else {
+            pinView!.annotation = annotation
+        }
+        return pinView
+    }
     
 }
