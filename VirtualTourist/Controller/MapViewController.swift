@@ -170,9 +170,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     
     //MARK: Callout Display Logic
     func getLocationName(_ location: CLLocationCoordinate2D, completionHandler: @escaping(_ locationName: String?) -> Void) {
-        //Getting the string of location
         let geocoder = CLGeocoder()
-        
         let mapLat: CLLocationDegrees = location.latitude
         let mapLong: CLLocationDegrees = location.longitude
         let newLocation = CLLocation(latitude: mapLat, longitude: mapLong)
@@ -193,8 +191,7 @@ extension MapViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let locationView = segue.destination as? LocationCollectionViewController {
             locationView.dataController = dataController
-            let indexPath = IndexPath(index: mapPins.index(of: pinTappedToView!)!)
-            locationView.tappedPin = fetchedResultsController.object(at: indexPath)
+            locationView.tappedPin = pinTappedToView
             
         }
         print("Segue performed.")

@@ -17,7 +17,6 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     @IBOutlet weak var locationZoomIn: MKMapView!
     
     var dataController: DataController!
-    var locImages: [String] = [String]()
     var savedPhotos: [LocationPhoto] = [LocationPhoto]()
     var fetchedResultsController: NSFetchedResultsController<LocationPhoto>!
     var tappedPin: LocationPin!
@@ -31,20 +30,21 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         locationZoomIn.delegate = self
         
         let fetchRequest: NSFetchRequest<LocationPhoto> = LocationPhoto.fetchRequest()
-        let predicate = NSPredicate(format: "locationPin == %@", arguments: tappedPin)
+        let predicate = NSPredicate(format: "locationPin == %@", tappedPin)
         fetchRequest.predicate = predicate
         if let photos = try? dataController.viewContext.fetch(fetchRequest) {
             savedPhotos = photos
         }
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         configureMapZoom()
         
-        //TODO: If statement for when savedPhotos is empty
-        downloadNewLocationPhotos()
+        if savedPhotos.count < 1 {
+            downloadNewLocationPhotos()
+        }
+        
     }
     
     
@@ -61,7 +61,7 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         
         fetchRequest.sortDescriptors = [sortDescriptors]
         if let results = try? dataController.viewContext.fetch(fetchRequest) {
-            photosToSave = results
+            savedPhotos = results
         }
     }
     
@@ -71,13 +71,15 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
                 DispatchQueue.main.async {
                     let photos = LocationPhoto(context: self.dataController.viewContext)
                     for photoDict in dictionary {
-                        let imageData = try? Data(contentsOf: URL(fileURLWithPath: photos.url_m!))
-                        photos.imageData = imageData
+                        
                         photos.url_m = photoDict["url_m"] as? String
                         photos.height_m = photoDict["height_m"] as? String
                         photos.width_m = photoDict["width_m"] as? String
                         photos.title = photoDict["title"] as? String
                         photos.id = photoDict["id"] as? String
+                        
+                        let imageData = try? Data(contentsOf: URL(fileURLWithPath: photos.url_m!))
+                        photos.imageData = imageData
                     }
                     
                     try? self.dataController.viewContext.save()
@@ -94,16 +96,15 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     
     //MARK: Collection View Protocols
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return locImages.count
+        return savedPhotos.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let reuseID = Constants.StoryboardIDs.CellReuseID
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CustomCollectionViewCell
         
-        //
-        let locImage = photosToSave[(indexPath as NSIndexPath).row]
-        cell.cellImageView.image = UIImage(data: locImage.imageData!)
+        let cellPhoto = savedPhotos[(indexPath as NSIndexPath).row]
+        cell.cellImageView.image = UIImage(data: cellPhoto.imageData!)
         
         return cell
     }
@@ -114,17 +115,15 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     
     //MARK: Zoomed Map Configuration
     func configureMapZoom() {
-        if let latitude = mapViewLat, let longitude = mapViewLong {
-            let zoomCoordinates = CLLocationCoordinate2DMake(latitude, longitude)
-            let mapSpan = MKCoordinateSpanMake(0.05, 0.05)
-            let mapRegion = MKCoordinateRegionMake(zoomCoordinates, mapSpan)
-            self.locationZoomIn.setRegion(mapRegion, animated: false)
-            
-            let coodinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = coodinates
-            self.locationZoomIn.addAnnotation(annotation)
-        }
+        let zoomCoordinates = CLLocationCoordinate2DMake(tappedPin.latitude, tappedPin.longitude)
+        let mapSpan = MKCoordinateSpanMake(0.05, 0.05)
+        let mapRegion = MKCoordinateRegionMake(zoomCoordinates, mapSpan)
+        self.locationZoomIn.setRegion(mapRegion, animated: false)
+        
+        let coodinates = CLLocationCoordinate2D(latitude: tappedPin.latitude, longitude: tappedPin.longitude)
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = coodinates
+        self.locationZoomIn.addAnnotation(annotation)
         locationZoomIn.isUserInteractionEnabled = false
     }
     
