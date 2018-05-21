@@ -3,20 +3,21 @@
     <entity name="LocationPhoto" representedClassName="LocationPhoto" syncable="YES" codeGenerationType="class">
         <attribute name="height_m" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="imageData" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" defaultValueString="&quot;&quot;" syncable="YES"/>
         <attribute name="url_m" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="width_m" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="pin" maxCount="1" deletionRule="Nullify" destinationEntity="LocationPin" inverseName="locationPhotosArray" inverseEntity="LocationPin" syncable="YES"/>
+        <relationship name="locationPin" maxCount="1" deletionRule="Nullify" destinationEntity="LocationPin" inverseName="locationPhoto" inverseEntity="LocationPin" syncable="YES"/>
     </entity>
     <entity name="LocationPin" representedClassName="LocationPin" syncable="YES" codeGenerationType="class">
         <attribute name="cityName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="creationDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="latitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="longitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
-        <relationship name="locationPhotosArray" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocationPhoto" inverseName="pin" inverseEntity="LocationPhoto" syncable="YES"/>
+        <relationship name="locationPhoto" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocationPhoto" inverseName="locationPin" inverseEntity="LocationPhoto" syncable="YES"/>
     </entity>
     <elements>
-        <element name="LocationPhoto" positionX="-54" positionY="18" width="128" height="133"/>
-        <element name="LocationPin" positionX="-207" positionY="18" width="119" height="120"/>
+        <element name="LocationPhoto" positionX="-54" positionY="18" width="128" height="148"/>
+        <element name="LocationPin" positionX="-207" positionY="18" width="119" height="118"/>
     </elements>
 </model>

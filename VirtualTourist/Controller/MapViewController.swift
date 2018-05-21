@@ -19,15 +19,17 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     
     var dataController: DataController!
     var mapPins: [LocationPin] = [LocationPin]()
+    var fetchedResultsController: NSFetchedResultsController<LocationPin>!
     
-    var tempLat: Double = 0.0
-    var tempLong: Double = 0.0
+    var tempLat: Double?
+    var tempLong: Double?
+    var pinTappedToView: LocationPin?
     
     var editState: Bool = false
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationBar.title = "Press to Add A Pin"
         configureMap()
         configureGestureRecognizer()
         fetchSavedPins()
@@ -56,7 +58,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
             let coordinates = mapView.convert(location, toCoordinateFrom: mapView)
             let annotation = MKPointAnnotation()
             
-            let mapPin  = LocationPin(context: dataController.viewContext)
+            let mapPin = LocationPin(context: dataController.viewContext)
             mapPin.creationDate = Date()
             mapPin.latitude = coordinates.latitude
             mapPin.longitude = coordinates.longitude
@@ -68,6 +70,9 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
             }
             
             mapView.addAnnotation(annotation)
+            
+            //TODO: Consider adding image request and saving here.
+            
             mapPins.insert(mapPin, at: 0)
             try? dataController.viewContext.save()
         }
@@ -86,10 +91,9 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
             navigationBar.title = "Tap To Remove"
         } else {
             editPinsButton.title = "Edit"
-            navigationBar.title = ""
+            navigationBar.title = "Press to Add A Pin"
         }
     }
-    
     
     //MARK: Core Data Protocols
     fileprivate func fetchSavedPins() {
@@ -99,10 +103,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         fetchRequest.sortDescriptors = [sortDescriptors]
         if let results = try? dataController.viewContext.fetch(fetchRequest) {
             mapPins = results
-            for location in results {
-                print(location.cityName ?? "No name")
-                print("\(location.latitude), \(location.longitude)")
-            }
         }
         
         var savedPins: [MKPointAnnotation] = [MKPointAnnotation]()
@@ -158,7 +158,11 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
                     tempLat = annotationLat
                     tempLong = annotationLong
                 }
-                
+                for pin in mapPins {
+                    if pin.latitude == view.annotation?.coordinate.latitude {
+                        pinTappedToView = pin
+                    }
+                }
                 self.performSegue(withIdentifier: Constants.StoryboardIDs.SegueID, sender: self)
             }
         }
@@ -176,7 +180,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         geocoder.reverseGeocodeLocation(newLocation) { (placemark, error) in
             if error == nil {
                 if let newLocationString = placemark?[0] {
-                    completionHandler("\(newLocationString.locality ?? "?"), \(newLocationString.country ?? "?")")
+                    completionHandler("\(newLocationString.locality ?? "Unknown"), \(newLocationString.country ?? "Unknown")")
                 }
             } else {
                 completionHandler(nil)
@@ -187,10 +191,10 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
 
 extension MapViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == Constants.StoryboardIDs.SegueID {
-            let locationView = segue.destination as! LocationCollectionViewController
-            locationView.mapViewLat = tempLat
-            locationView.mapViewLong = tempLong
+        if let locationView = segue.destination as? LocationCollectionViewController {
+            locationView.dataController = dataController
+            let indexPath = IndexPath(index: mapPins.index(of: pinTappedToView!)!)
+            locationView.tappedPin = fetchedResultsController.object(at: indexPath)
             
         }
         print("Segue performed.")

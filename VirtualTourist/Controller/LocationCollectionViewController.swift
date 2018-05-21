@@ -16,8 +16,12 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     @IBOutlet weak var photoTableView: UICollectionView!
     @IBOutlet weak var locationZoomIn: MKMapView!
     
-//    let locImages = locationImages.shared.imageArray
+    var dataController: DataController!
     var locImages: [String] = [String]()
+    var savedPhotos: [LocationPhoto] = [LocationPhoto]()
+    var fetchedResultsController: NSFetchedResultsController<LocationPhoto>!
+    var tappedPin: LocationPin!
+    
     var mapViewLat: Double?
     var mapViewLong: Double?
     
@@ -25,32 +29,90 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         super.viewDidLoad()
         photoTableView.delegate = self
         locationZoomIn.delegate = self
+        
+        let fetchRequest: NSFetchRequest<LocationPhoto> = LocationPhoto.fetchRequest()
+        let predicate = NSPredicate(format: "locationPin == %@", arguments: tappedPin)
+        fetchRequest.predicate = predicate
+        if let photos = try? dataController.viewContext.fetch(fetchRequest) {
+            savedPhotos = photos
+        }
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         configureMapZoom()
         
-        if let latitude = mapViewLat, let longitude = mapViewLong {
-            VTClient.shared.getFromLatLong(lat:latitude, long: longitude) { (data, success, string) in
-                if success {
-                    print(string!)
-                    DispatchQueue.main.async {
-                        self.locImages = data
-                        print("LocImages Count: \(data.count)")
-                        self.photoTableView.reloadData()
-                        
+        //TODO: If statement for when savedPhotos is empty
+        downloadNewLocationPhotos()
+    }
+    
+    
+    @IBAction func confirmImageSelectionAction(_ sender: Any) {
+        
+        //Get images function, but with a random page.
+        print("Confirm button pressed.")
+    }
+    
+    //MARK: Core Data Protocols
+    func fetchPhotos() {
+        let fetchRequest: NSFetchRequest<LocationPhoto> = LocationPhoto.fetchRequest()
+        let sortDescriptors = NSSortDescriptor(key: "id", ascending: false)
+        
+        fetchRequest.sortDescriptors = [sortDescriptors]
+        if let results = try? dataController.viewContext.fetch(fetchRequest) {
+            photosToSave = results
+        }
+    }
+    
+    func downloadNewLocationPhotos() {
+        VTClient.shared.getFromLatLong(lat: tappedPin.latitude, long: tappedPin.longitude) { (dictionary, success, string) in
+            if success {
+                DispatchQueue.main.async {
+                    let photos = LocationPhoto(context: self.dataController.viewContext)
+                    for photoDict in dictionary {
+                        let imageData = try? Data(contentsOf: URL(fileURLWithPath: photos.url_m!))
+                        photos.imageData = imageData
+                        photos.url_m = photoDict["url_m"] as? String
+                        photos.height_m = photoDict["height_m"] as? String
+                        photos.width_m = photoDict["width_m"] as? String
+                        photos.title = photoDict["title"] as? String
+                        photos.id = photoDict["id"] as? String
                     }
+                    
+                    try? self.dataController.viewContext.save()
+                    self.photoTableView.reloadData()
                 }
             }
         }
     }
 
     
-    @IBAction func confirmImageSelectionAction(_ sender: Any) {
-        print("Confirm button pressed.")
+    func addPhotoToCoreData() {
+        //Save the images downloaded from the request to the pin's photo array
     }
     
+    //MARK: Collection View Protocols
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return locImages.count
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let reuseID = Constants.StoryboardIDs.CellReuseID
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CustomCollectionViewCell
+        
+        //
+        let locImage = photosToSave[(indexPath as NSIndexPath).row]
+        cell.cellImageView.image = UIImage(data: locImage.imageData!)
+        
+        return cell
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        //
+    }
+    
+    //MARK: Zoomed Map Configuration
     func configureMapZoom() {
         if let latitude = mapViewLat, let longitude = mapViewLong {
             let zoomCoordinates = CLLocationCoordinate2DMake(latitude, longitude)
@@ -64,26 +126,6 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
             self.locationZoomIn.addAnnotation(annotation)
         }
         locationZoomIn.isUserInteractionEnabled = false
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return locImages.count
-    }
-
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let reuseID = Constants.StoryboardIDs.CellReuseID
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CustomCollectionViewCell
-        
-        let locImage = locImages[(indexPath as NSIndexPath).row]
-        if let imageData = try? Data(contentsOf: URL(string: locImage)!) {
-                cell.cellImageView.image = UIImage(data: imageData)
-        }
-
-        return cell
-    }
-
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
