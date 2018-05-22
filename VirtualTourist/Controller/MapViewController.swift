@@ -21,8 +21,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     var mapPins: [LocationPin] = [LocationPin]()
     var fetchedResultsController: NSFetchedResultsController<LocationPin>!
     
-    var tempLat: Double?
-    var tempLong: Double?
     var pinTappedToView: LocationPin?
     
     var editState: Bool = false
@@ -153,11 +151,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
             }
         } else {
             if control == view.rightCalloutAccessoryView {
-                print("Control tapped.")
-                if let annotationLat = view.annotation?.coordinate.latitude, let annotationLong = view.annotation?.coordinate.longitude {
-                    tempLat = annotationLat
-                    tempLong = annotationLong
-                }
+                print("Control tapped.")                
                 for pin in mapPins {
                     if pin.latitude == view.annotation?.coordinate.latitude {
                         pinTappedToView = pin

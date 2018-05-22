@@ -67,33 +67,26 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     
     func downloadNewLocationPhotos() {
         VTClient.shared.getFromLatLong(lat: tappedPin.latitude, long: tappedPin.longitude) { (dictionary, success, string) in
+            
             if success {
-                DispatchQueue.main.async {
+                for photoDict in dictionary {
                     let photos = LocationPhoto(context: self.dataController.viewContext)
-                    for photoDict in dictionary {
-                        
-                        photos.url_m = photoDict["url_m"] as? String
-                        photos.height_m = photoDict["height_m"] as? String
-                        photos.width_m = photoDict["width_m"] as? String
-                        photos.title = photoDict["title"] as? String
-                        photos.id = photoDict["id"] as? String
-                        
-                        let imageData = try? Data(contentsOf: URL(fileURLWithPath: photos.url_m!))
-                        photos.imageData = imageData
-                    }
-                    
-                    try? self.dataController.viewContext.save()
+                    photos.locationPin = self.tappedPin
+                    photos.url_m = photoDict["url_m"] as? String
+                    photos.id = photoDict["id"] as? String
+                    photos.imageData = try? Data(contentsOf: URL(fileURLWithPath: photoDict["url_m"] as! String))
+                    self.savedPhotos.append(photos)
+                }
+                
+                DispatchQueue.main.async {
                     self.photoTableView.reloadData()
                 }
             }
+            
+            try? self.dataController.viewContext.save()
         }
     }
 
-    
-    func addPhotoToCoreData() {
-        //Save the images downloaded from the request to the pin's photo array
-    }
-    
     //MARK: Collection View Protocols
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return savedPhotos.count
@@ -104,7 +97,11 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CustomCollectionViewCell
         
         let cellPhoto = savedPhotos[(indexPath as NSIndexPath).row]
-        cell.cellImageView.image = UIImage(data: cellPhoto.imageData!)
+        if let image = cellPhoto.imageData {
+            cell.cellImageView.image = UIImage(data: image)
+        } else {
+            print(cellPhoto.imageData)
+        }
         
         return cell
     }
