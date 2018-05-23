@@ -17,10 +17,11 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     @IBOutlet weak var locationZoomIn: MKMapView!
     
     var dataController: DataController!
-    var savedPhotos: [LocationPhoto] = [LocationPhoto]()
     var fetchedResultsController: NSFetchedResultsController<LocationPhoto>!
     var tappedPin: LocationPin!
     
+    var savedPhotos: [LocationPhoto] = [LocationPhoto]()
+    var photosToDelete: [LocationPhoto] = [LocationPhoto]()
     var mapViewLat: Double?
     var mapViewLong: Double?
     
@@ -29,37 +30,39 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         photoTableView.delegate = self
         locationZoomIn.delegate = self
         
-        let fetchRequest: NSFetchRequest<LocationPhoto> = LocationPhoto.fetchRequest()
-        let predicate = NSPredicate(format: "locationPin == %@", tappedPin)
-        fetchRequest.predicate = predicate
-        if let photos = try? dataController.viewContext.fetch(fetchRequest) {
-            savedPhotos = photos
-        }
+       fetchPhotos()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         configureMapZoom()
+        fetchPhotos()
         
         if savedPhotos.count < 1 {
             downloadNewLocationPhotos()
+        } else {
+            fetchPhotos()
+            print("Saved photos count at viewWillAppear: \(savedPhotos.count)")
         }
         
     }
     
     
     @IBAction func confirmImageSelectionAction(_ sender: Any) {
+//        deleteAndGetNewPhotos()
         
-        //Get images function, but with a random page.
         print("Confirm button pressed.")
     }
     
     //MARK: Core Data Protocols
     func fetchPhotos() {
         let fetchRequest: NSFetchRequest<LocationPhoto> = LocationPhoto.fetchRequest()
+        let predicate = NSPredicate(format: "locationPin == %@", tappedPin)
+        fetchRequest.predicate = predicate
         let sortDescriptors = NSSortDescriptor(key: "id", ascending: false)
-        
         fetchRequest.sortDescriptors = [sortDescriptors]
+        
+        //Assign photos to local array
         if let results = try? dataController.viewContext.fetch(fetchRequest) {
             savedPhotos = results
         }
@@ -74,7 +77,9 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
                     photos.locationPin = self.tappedPin
                     photos.url_m = photoDict["url_m"] as? String
                     photos.id = photoDict["id"] as? String
-                    photos.imageData = try? Data(contentsOf: URL(fileURLWithPath: photoDict["url_m"] as! String))
+                    self.convertUrlToData(urlString: photos.url_m!) { (data, error) in
+                        photos.imageData = data
+                    }
                     self.savedPhotos.append(photos)
                 }
                 
@@ -86,6 +91,27 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
             try? self.dataController.viewContext.save()
         }
     }
+    
+    func convertUrlToData(urlString: String, completion: @escaping(_ imageData: Data?, _ errorString: String?) -> Void) {
+        let url = URL(fileURLWithPath: urlString)
+        let urlData = try? Data(contentsOf: url)
+        guard let returnData = urlData else {
+            completion(nil, "Could not get URL data.")
+            return
+        }
+        completion(returnData, nil)
+    }
+    
+    //Deletes and pulls new images upon user request.
+    func deleteAndGetNewPhotos() {
+        if savedPhotos.count >= 1 {
+            for photo in savedPhotos {
+                dataController.viewContext.delete(photo)
+            }
+            
+        }
+        downloadNewLocationPhotos()
+    }
 
     //MARK: Collection View Protocols
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -93,21 +119,31 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
         let reuseID = Constants.StoryboardIDs.CellReuseID
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CustomCollectionViewCell
         
         let cellPhoto = savedPhotos[(indexPath as NSIndexPath).row]
-        if let image = cellPhoto.imageData {
-            cell.cellImageView.image = UIImage(data: image)
+        
+        //Try showing images from memory
+        if let imageData = cellPhoto.imageData {
+            print("Assignment from memory")
+            cell.cellImageView.image = UIImage(data: imageData)
         } else {
-            print(cellPhoto.imageData)
+            //Default to showing images through calling the URL
+            if let imageData = try? Data(contentsOf: URL(string: cellPhoto.url_m!)!) {
+                print("Assignment from url conversion.")
+                cell.cellImageView.image = UIImage(data: imageData)
+                cellPhoto.imageData = imageData
+            }
         }
         
+        try? dataController.viewContext.save()
         return cell
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //
+        
     }
     
     //MARK: Zoomed Map Configuration
