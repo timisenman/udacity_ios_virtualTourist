@@ -15,7 +15,6 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     @IBOutlet weak var collectionViewActionButton: UIButton!
     @IBOutlet weak var photoTableView: UICollectionView!
     @IBOutlet weak var locationZoomIn: MKMapView!
-    @IBOutlet weak var navigationBar: UINavigationItem!
     
     var dataController: DataController!
     var fetchedResultsController: NSFetchedResultsController<LocationPhoto>!
@@ -30,10 +29,7 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         super.viewDidLoad()
         photoTableView.delegate = self
         locationZoomIn.delegate = self
-        
         fetchPhotos()
-        print("Currrent saved photos: \(savedPhotos.count)")
-        print("ViewContext:\n\(dataController.viewContext)\n")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -43,6 +39,7 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         
         if savedPhotos.count < 1 {
             downloadNewImagesAt(page: 1)
+            print("Downloading new images at viewWillAppear. Image Count: \(savedPhotos.count)")
         } else {
             fetchPhotos()
             print("Saved photos count at viewWillAppear: \(savedPhotos.count)")
@@ -50,10 +47,8 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         
     }
     
-    
     @IBAction func confirmImageSelectionAction(_ sender: Any) {
         self.deleteAndGetNewPhotos()
-        
         print("Confirm button pressed.")
     }
     
@@ -99,9 +94,8 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
                 dataController.viewContext.delete(photo)
             }
         } else {
-//            let random = Int(arc4random_uniform(10)+1)
             downloadNewImagesAt(page: 2)
-            }
+        }
     }
 
     //MARK: Collection View Protocols
@@ -113,6 +107,16 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         
         let reuseID = Constants.StoryboardIDs.CellReuseID
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CustomCollectionViewCell
+        
+        //Iterate through the saves images and download their data before assigning the images in the Collection View
+        for photo in savedPhotos {
+            if photo.imageData == nil {
+                if let imageData = try? Data(contentsOf: URL(string: photo.url_m!)!) {
+                    print("Saving images while on page.")
+                    photo.imageData = imageData
+                }
+            }
+        }
         
         let cellPhoto = savedPhotos[(indexPath as NSIndexPath).row]
         
@@ -137,6 +141,8 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         let reuseID = Constants.StoryboardIDs.CellReuseID
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CustomCollectionViewCell
         let cellPhoto = savedPhotos[(indexPath as NSIndexPath).row]
+        
+        //Delete image functionality
         
     }
     
