@@ -68,10 +68,8 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
             }
             
             mapView.addAnnotation(annotation)
-            
-            //TODO: Consider adding image request and saving here.
-            
-            mapPins.insert(mapPin, at: 0)
+            mapPins.append(mapPin)
+            print("MapPins after adding: \(mapPins.count)")
             try? dataController.viewContext.save()
         }
     }
@@ -101,6 +99,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         fetchRequest.sortDescriptors = [sortDescriptors]
         if let results = try? dataController.viewContext.fetch(fetchRequest) {
             mapPins = results
+            print("MapPins saved: \(mapPins.count)")
         }
         
         var savedPins: [MKPointAnnotation] = [MKPointAnnotation]()
@@ -157,6 +156,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
                         pinTappedToView = pin
                     }
                 }
+                try? dataController.viewContext.save()
                 self.performSegue(withIdentifier: Constants.StoryboardIDs.SegueID, sender: self)
             }
         }
@@ -186,7 +186,7 @@ extension MapViewController {
         if let locationView = segue.destination as? LocationCollectionViewController {
             locationView.dataController = dataController
             locationView.tappedPin = pinTappedToView
-            
+            try? dataController.viewContext.save()
         }
         print("Segue performed.")
     }

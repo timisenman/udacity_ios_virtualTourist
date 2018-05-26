@@ -18,9 +18,9 @@ class VTClient: NSObject {
         super.init()
     }
     
-    func getFromLatLong(lat: Double, long: Double, completionHandler: @escaping(_ data: [[String:AnyObject]], _ success: Bool, _ errorString: String?) -> Void) {
-        var urlArray: [String] = [String]()
-        let url = URL(string: "https://api.flickr.com/services/rest?method=flickr.photos.search&api_key=9f2d4591298eeedac39f2af636aebbc9&lat=\(lat)&lon=\(long)&extras=url_m&format=json&nojsoncallback=?&per_page=21")
+    func getImagesFrom(lat: Double, long: Double, pageNumber: Int, completionHandler: @escaping(_ data: [[String:AnyObject]], _ success: Bool, _ errorString: String?) -> Void) {
+
+        let url = URL(string: "https://api.flickr.com/services/rest?method=flickr.photos.search&api_key=9f2d4591298eeedac39f2af636aebbc9&lat=\(lat)&lon=\(long)&extras=url_m&format=json&nojsoncallback=?&per_page=21&page=\(pageNumber)")
         
         let request = URLRequest(url: url!)
         
@@ -51,14 +51,7 @@ class VTClient: NSObject {
                 return
             }
             
-//            for photo in photoDict {
-//                if let imageUrl = photo["url_m"] as? String {
-//                    DispatchQueue.main.sync {
-//                        urlArray.append(imageUrl)
-//                    }
-//                }
-//            }
-            completionHandler(photoDict, true, "Try these images")
+            completionHandler(photoDict, true, nil)
         }
         task.resume()
     }
