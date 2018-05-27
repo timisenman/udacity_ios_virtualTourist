@@ -21,7 +21,7 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     var tappedPin: LocationPin!
     
     var savedPhotos: [LocationPhoto] = [LocationPhoto]()
-    var photosToDelete: [LocationPhoto] = [LocationPhoto]()
+    var photosToDelete: [IndexPath] = [IndexPath]()
     var mapViewLat: Double?
     var mapViewLong: Double?
     
@@ -45,11 +45,6 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
             print("Saved photos count at viewWillAppear: \(savedPhotos.count)")
         }
         
-    }
-    
-    @IBAction func confirmImageSelectionAction(_ sender: Any) {
-        self.deleteAndGetNewPhotos()
-        print("Confirm button pressed.")
     }
     
     //MARK: Core Data Protocols
@@ -97,6 +92,24 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
             downloadNewImagesAt(page: 2)
         }
     }
+    
+    @IBAction func confirmImageSelectionAction(_ sender: Any) {
+        
+        if photosToDelete.count >= 1 {
+            for photo in photosToDelete {
+                let index = photo.row
+                dataController.viewContext.delete(savedPhotos[index])
+                savedPhotos.remove(at: index)
+            }
+            photoTableView.deleteItems(at: photosToDelete)
+            try? dataController.viewContext.save()
+            photoTableView.reloadData()
+        } else {
+            //            self.deleteAndGetNewPhotos()
+        }
+        print("Saved photos after a delete: \(savedPhotos.count)")
+        
+    }
 
     //MARK: Collection View Protocols
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -138,11 +151,9 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let reuseID = Constants.StoryboardIDs.CellReuseID
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CustomCollectionViewCell
-        let cellPhoto = savedPhotos[(indexPath as NSIndexPath).row]
-        
-        //Delete image functionality
+        let pCell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.StoryboardIDs.CellReuseID, for: indexPath)
+        photosToDelete.append(indexPath)
+        print("Photos to Delete: \(photosToDelete.count)")
         
     }
     
