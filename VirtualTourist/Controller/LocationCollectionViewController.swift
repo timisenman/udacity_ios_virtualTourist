@@ -104,6 +104,7 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
             photoTableView.deleteItems(at: photosToDelete)
             try? dataController.viewContext.save()
             photoTableView.reloadData()
+            photosToDelete.removeAll()
         } else {
             //            self.deleteAndGetNewPhotos()
         }
