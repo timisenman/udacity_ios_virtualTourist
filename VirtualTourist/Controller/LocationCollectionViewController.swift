@@ -84,18 +84,21 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     
     //Deletes and pulls new images upon user request.
     func deleteAndGetNewPhotos() {
-        if savedPhotos.count >= 1 {
+        if photosToDelete.count == 0 {
             for photo in savedPhotos {
                 dataController.viewContext.delete(photo)
             }
-        } else {
-            downloadNewImagesAt(page: 2)
+            savedPhotos.removeAll()
+            try? dataController.viewContext.save()
+            photoTableView.reloadData()
         }
+        downloadNewImagesAt(page: 2)
     }
     
     @IBAction func confirmImageSelectionAction(_ sender: Any) {
-        
         if photosToDelete.count >= 1 {
+            //Configure button
+            
             for photo in photosToDelete {
                 let index = photo.row
                 dataController.viewContext.delete(savedPhotos[index])
@@ -106,7 +109,8 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
             photoTableView.reloadData()
             photosToDelete.removeAll()
         } else {
-            //            self.deleteAndGetNewPhotos()
+            //Configure button
+            deleteAndGetNewPhotos()
         }
         print("Saved photos after a delete: \(savedPhotos.count)")
         
