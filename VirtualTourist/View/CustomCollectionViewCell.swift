@@ -13,6 +13,16 @@ class CustomCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var cellImageView: UIImageView!
     var activityIndicator: UIActivityIndicatorView!
     
+    override var isSelected: Bool {
+        didSet {
+            if self.isSelected {
+                self.cellImageView.alpha = 0.5
+            } else {
+                self.cellImageView.alpha = 1.0
+            }
+        }
+    }
+    
 //    override func prepareForReuse() {
 //        if cellImageView.image == nil {
 //            self.activityIndicator.startAnimating()

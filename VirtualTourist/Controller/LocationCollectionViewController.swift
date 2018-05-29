@@ -29,7 +29,10 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         super.viewDidLoad()
         photoTableView.delegate = self
         locationZoomIn.delegate = self
+        collectionViewActionButton.setTitle("Get New Images", for: .normal)
+        collectionViewActionButton.backgroundColor = UIColor(red: 0.0, green: 190.0, blue: 255.0, alpha: 1)
         fetchPhotos()
+        photoTableView.allowsMultipleSelection = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -89,16 +92,27 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
                 dataController.viewContext.delete(photo)
             }
             savedPhotos.removeAll()
+            photosToDelete.removeAll()
             try? dataController.viewContext.save()
             photoTableView.reloadData()
         }
-        downloadNewImagesAt(page: 2)
+        var page = 2
+        downloadNewImagesAt(page: page)
+        page += 1
+    }
+    
+    func defaultButtonStyle() {
+        collectionViewActionButton.setTitle("Get New Images", for: .normal)
+        collectionViewActionButton.backgroundColor = UIColor.blue
+    }
+    
+    func deleteImagesState() {
+            collectionViewActionButton.setTitle("Delete Selected Images", for: .normal)
+            collectionViewActionButton.backgroundColor = UIColor.red
     }
     
     @IBAction func confirmImageSelectionAction(_ sender: Any) {
         if photosToDelete.count >= 1 {
-            //Configure button
-            
             for photo in photosToDelete {
                 let index = photo.row
                 dataController.viewContext.delete(savedPhotos[index])
@@ -108,8 +122,8 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
             try? dataController.viewContext.save()
             photoTableView.reloadData()
             photosToDelete.removeAll()
+            defaultButtonStyle()
         } else {
-            //Configure button
             deleteAndGetNewPhotos()
         }
         print("Saved photos after a delete: \(savedPhotos.count)")
@@ -125,8 +139,7 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         
         let reuseID = Constants.StoryboardIDs.CellReuseID
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CustomCollectionViewCell
-        
-        //Iterate through the saves images and download their data before assigning the images in the Collection View
+
         for photo in savedPhotos {
             if photo.imageData == nil {
                 if let imageData = try? Data(contentsOf: URL(string: photo.url_m!)!) {
@@ -156,11 +169,22 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let pCell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.StoryboardIDs.CellReuseID, for: indexPath)
+        deleteImagesState()
         photosToDelete.append(indexPath)
-        print("Photos to Delete: \(photosToDelete.count)")
-        
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        
+        if let index = photosToDelete.index(of: indexPath) {
+            photosToDelete.remove(at: index)
+            print("Count after deselect: \(photosToDelete.count)")
+        }
+        
+        if photosToDelete.isEmpty {
+            defaultButtonStyle()
+        }
+    }
+    
     
     //MARK: Zoomed Map Configuration
     func configureMapZoom() {
