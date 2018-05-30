@@ -4,14 +4,14 @@
         <attribute name="id" attributeType="String" syncable="YES"/>
         <attribute name="imageData" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
         <attribute name="url_m" attributeType="String" syncable="YES"/>
-        <relationship name="locationPin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocationPin" inverseName="locationPhoto" inverseEntity="LocationPin" syncable="YES"/>
+        <relationship name="locationPin" maxCount="1" deletionRule="Cascade" destinationEntity="LocationPin" inverseName="locationPhoto" inverseEntity="LocationPin" syncable="YES"/>
     </entity>
     <entity name="LocationPin" representedClassName="LocationPin" syncable="YES" codeGenerationType="class">
         <attribute name="cityName" attributeType="String" syncable="YES"/>
         <attribute name="creationDate" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="latitude" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="longitude" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
-        <relationship name="locationPhoto" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocationPhoto" inverseName="locationPin" inverseEntity="LocationPhoto" syncable="YES"/>
+        <relationship name="locationPhoto" toMany="YES" deletionRule="Cascade" destinationEntity="LocationPhoto" inverseName="locationPin" inverseEntity="LocationPhoto" syncable="YES"/>
     </entity>
     <elements>
         <element name="LocationPhoto" positionX="-54" positionY="18" width="128" height="105"/>
