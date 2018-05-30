@@ -22,10 +22,4 @@ class CustomCollectionViewCell: UICollectionViewCell {
             }
         }
     }
-    
-//    override func prepareForReuse() {
-//        if cellImageView.image == nil {
-//            self.activityIndicator.startAnimating()
-//        }
-//    }
 }

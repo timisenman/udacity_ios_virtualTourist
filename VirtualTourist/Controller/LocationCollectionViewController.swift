@@ -33,6 +33,7 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         collectionViewActionButton.backgroundColor = UIColor(red: 0.0, green: 190.0, blue: 255.0, alpha: 1)
         fetchPhotos()
         photoTableView.allowsMultipleSelection = true
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -70,11 +71,10 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
             if success {
                 for photoDict in dictionary {
                     let photo = LocationPhoto(context: self.dataController.viewContext)
-                    photo.locationPin = self.tappedPin
+                    photo.locationPin = self.tappedPin!
                     photo.url_m = photoDict["url_m"] as? String
                     photo.id = photoDict["id"] as? String
                     self.savedPhotos.append(photo)
-                    print(photo)
                 }
                 
                 DispatchQueue.main.async {
@@ -107,8 +107,8 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     }
     
     func deleteImagesState() {
-            collectionViewActionButton.setTitle("Delete Selected Images", for: .normal)
-            collectionViewActionButton.backgroundColor = UIColor.red
+        collectionViewActionButton.setTitle("Delete Selected Images", for: .normal)
+        collectionViewActionButton.backgroundColor = UIColor.red
     }
     
     @IBAction func confirmImageSelectionAction(_ sender: Any) {
@@ -143,7 +143,6 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         for photo in savedPhotos {
             if photo.imageData == nil {
                 if let imageData = try? Data(contentsOf: URL(string: photo.url_m!)!) {
-                    print("Saving images while on page.")
                     photo.imageData = imageData
                 }
             }
@@ -153,12 +152,11 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         
         //Try showing images from memory
         if let imageData = cellPhoto.imageData {
-            print("Assignment from memory")
             cell.cellImageView.image = UIImage(data: imageData)
+            cell.cellImageView.backgroundColor = nil
         } else {
             //Default to showing images through calling the URL
             if let imageData = try? Data(contentsOf: URL(string: cellPhoto.url_m!)!) {
-                print("Assignment from url conversion.")
                 cell.cellImageView.image = UIImage(data: imageData)
                 cellPhoto.imageData = imageData
             }

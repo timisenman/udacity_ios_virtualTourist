@@ -69,7 +69,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
             
             mapView.addAnnotation(annotation)
             mapPins.append(mapPin)
-            print("MapPins after adding: \(mapPins.count)")
             try? dataController.viewContext.save()
         }
     }
@@ -80,7 +79,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     
     func changeEditState() {
         editState = !editState
-        print(editState)
         
         if editState == true {
             editPinsButton.title = "Done"
@@ -99,7 +97,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         fetchRequest.sortDescriptors = [sortDescriptors]
         if let results = try? dataController.viewContext.fetch(fetchRequest) {
             mapPins = results
-            print("MapPins saved: \(mapPins.count)")
         }
         
         var savedPins: [MKPointAnnotation] = [MKPointAnnotation]()
@@ -134,7 +131,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     }
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-        print("Pin tapped.")
         let reuseId = "pin"
         let pinView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseId) as? MKPinAnnotationView
         
@@ -150,7 +146,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
             }
         } else {
             if control == view.rightCalloutAccessoryView {
-                print("Control tapped.")                
                 for pin in mapPins {
                     if pin.latitude == view.annotation?.coordinate.latitude {
                         pinTappedToView = pin
@@ -188,6 +183,5 @@ extension MapViewController {
             locationView.tappedPin = pinTappedToView
             try? dataController.viewContext.save()
         }
-        print("Segue performed.")
     }
 }
