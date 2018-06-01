@@ -30,7 +30,8 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         photoTableView.delegate = self
         locationZoomIn.delegate = self
         collectionViewActionButton.setTitle("Get New Images", for: .normal)
-        collectionViewActionButton.backgroundColor = UIColor(red: 0.0, green: 190.0, blue: 255.0, alpha: 1)
+        collectionViewActionButton.backgroundColor = UIColor.blue
+        collectionViewActionButton.setTitleColor(UIColor.white, for: .normal)
         fetchPhotos()
         photoTableView.allowsMultipleSelection = true
         
@@ -43,10 +44,8 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         
         if savedPhotos.count < 1 {
             downloadNewImagesAt(page: 1)
-            print("Downloading new images at viewWillAppear. Image Count: \(savedPhotos.count)")
         } else {
             fetchPhotos()
-            print("Saved photos count at viewWillAppear: \(savedPhotos.count)")
         }
         
     }
@@ -126,8 +125,6 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         } else {
             deleteAndGetNewPhotos()
         }
-        print("Saved photos after a delete: \(savedPhotos.count)")
-        
     }
 
     //MARK: Collection View Protocols
@@ -139,7 +136,9 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         
         let reuseID = Constants.StoryboardIDs.CellReuseID
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CustomCollectionViewCell
+        cell.cellImageView.image = UIImage(named: "Square")
 
+        
         for photo in savedPhotos {
             if photo.imageData == nil {
                 if let imageData = try? Data(contentsOf: URL(string: photo.url_m!)!) {
@@ -175,7 +174,6 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         
         if let index = photosToDelete.index(of: indexPath) {
             photosToDelete.remove(at: index)
-            print("Count after deselect: \(photosToDelete.count)")
         }
         
         if photosToDelete.isEmpty {
