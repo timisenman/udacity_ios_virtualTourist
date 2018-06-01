@@ -84,11 +84,24 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     }
     
     func downloadNewImagesAt(page: Int) {
-        VTClient.shared.getImagesFrom(lat: tappedPin.latitude, long: tappedPin.longitude, pageNumber: page) { (dictionary, success, string) in
+        VTClient.shared.getImagesFrom(lat: tappedPin.latitude, long: tappedPin.longitude, pageNumber: page, perPage: nil) { (dictionary, success, string) in
             
-            if success {
+            guard let successfulDownload = success else {
+                fatalError("Unsuccessful download Flickr Data.")
+            }
+            
+            guard let flickrDictionary = dictionary else {
+                fatalError("No photos available in Flickr request.")
+            }
+            
+            if successfulDownload {
+                
+                if flickrDictionary.count == 0 {
+                    print("Dictionary item count: \(flickrDictionary.count)")
+                    self.displayUIAlert(with: "Sorry, there are no images from this place.")
+                }
                 //Parse the dictionary of data downloaded from Flickr and assign the properties of the individual photos
-                for photoDict in dictionary {
+                for photoDict in flickrDictionary {
                     let photo = LocationPhoto(context: self.dataController.viewContext)
                     photo.locationPin = self.tappedPin!
                     photo.url_m = photoDict["url_m"] as? String
@@ -111,8 +124,8 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
                 DispatchQueue.main.async {
                     self.photoTableView.reloadData()
                 }
+                try? self.dataController.viewContext.save()
             }
-            try? self.dataController.viewContext.save()
         }
     }
     
@@ -220,6 +233,13 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         collectionViewActionButton.setTitle("Get New Images", for: .normal)
         collectionViewActionButton.backgroundColor = UIColor.blue
         collectionViewActionButton.setTitleColor(UIColor.white, for: .normal)
+    }
+    
+    //MARK: UI Alert Configuration
+    func displayUIAlert(with message: String) {
+        let alert = UIAlertController(title: "Oops!", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
     }
     
 }
