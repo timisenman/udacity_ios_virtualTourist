@@ -43,10 +43,29 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         configureMapZoom()
         fetchPhotos()
         
+        //Fetch the LocationPhotos if they exist, otherwise download the photos of that location
         if savedPhotos.count < 1 {
             downloadNewImagesAt(page: 1)
         } else {
             fetchPhotos()
+        }
+    }
+    
+    //MARK: User Experience
+    @IBAction func confirmImageSelectionAction(_ sender: Any) {
+        if photosToDelete.count >= 1 {
+            for photo in photosToDelete {
+                let index = photo.row
+                dataController.viewContext.delete(savedPhotos[index])
+                savedPhotos.remove(at: index)
+            }
+            photoTableView.deleteItems(at: photosToDelete)
+            try? dataController.viewContext.save()
+            photoTableView.reloadData()
+            photosToDelete.removeAll()
+            defaultButtonStyle()
+        } else {
+            deleteAndGetNewPhotos()
         }
     }
     
@@ -68,12 +87,14 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         VTClient.shared.getImagesFrom(lat: tappedPin.latitude, long: tappedPin.longitude, pageNumber: page) { (dictionary, success, string) in
             
             if success {
+                //Parse the dictionary of data downloaded from Flickr and assign the properties of the individual photos
                 for photoDict in dictionary {
                     let photo = LocationPhoto(context: self.dataController.viewContext)
                     photo.locationPin = self.tappedPin!
                     photo.url_m = photoDict["url_m"] as? String
                     photo.id = photoDict["id"] as? String
                     
+                    //Call each URL, download the data, and assign it to the Image Binary property of the LocationPhoto entity
                     for photo in self.savedPhotos {
                         if photo.imageData == nil {
                             if let imageData = try? Data(contentsOf: URL(string: photo.url_m!)!) {
@@ -82,9 +103,11 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
                         }
                     }
                     
+                    //Save to the local variable where all the data will be accessed by the Collection View
                     self.savedPhotos.append(photo)
                 }
                 
+                //Reload the data after it's received by the ViewController
                 DispatchQueue.main.async {
                     self.photoTableView.reloadData()
                 }
@@ -104,43 +127,12 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
             try? dataController.viewContext.save()
             photoTableView.reloadData()
         }
+        //Pulls new photos from the next page, then the next page, rather than a random number which might be out of range
         var page = 2
         downloadNewImagesAt(page: page)
         page += 1
     }
     
-    func defaultButtonStyle() {
-        collectionViewActionButton.setTitle("Get New Images", for: .normal)
-        collectionViewActionButton.backgroundColor = UIColor.blue
-    }
-    
-    func deleteImagesState() {
-        collectionViewActionButton.setTitle("Delete Selected Images", for: .normal)
-        collectionViewActionButton.backgroundColor = UIColor.red
-    }
-    
-    func buttonConfiguration() {
-        collectionViewActionButton.setTitle("Get New Images", for: .normal)
-        collectionViewActionButton.backgroundColor = UIColor.blue
-        collectionViewActionButton.setTitleColor(UIColor.white, for: .normal)
-    }
-    
-    @IBAction func confirmImageSelectionAction(_ sender: Any) {
-        if photosToDelete.count >= 1 {
-            for photo in photosToDelete {
-                let index = photo.row
-                dataController.viewContext.delete(savedPhotos[index])
-                savedPhotos.remove(at: index)
-            }
-            photoTableView.deleteItems(at: photosToDelete)
-            try? dataController.viewContext.save()
-            photoTableView.reloadData()
-            photosToDelete.removeAll()
-            defaultButtonStyle()
-        } else {
-            deleteAndGetNewPhotos()
-        }
-    }
 
     //MARK: Collection View Protocols
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -168,21 +160,21 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        //Toggle the state of the Delete Photos confirmation button
         deleteImagesState()
         photosToDelete.append(indexPath)
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        
         if let index = photosToDelete.index(of: indexPath) {
             photosToDelete.remove(at: index)
         }
         
+        //Set the style of the button if a user deselects all of the images they initially selected to delete
         if photosToDelete.isEmpty {
             defaultButtonStyle()
         }
     }
-    
     
     //MARK: Zoomed Map Configuration
     func configureMapZoom() {
@@ -211,6 +203,23 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
             pinView!.annotation = annotation
         }
         return pinView
+    }
+    
+    //MARK: UI Configurations
+    func defaultButtonStyle() {
+        collectionViewActionButton.setTitle("Get New Images", for: .normal)
+        collectionViewActionButton.backgroundColor = UIColor.blue
+    }
+    
+    func deleteImagesState() {
+        collectionViewActionButton.setTitle("Delete Selected Images", for: .normal)
+        collectionViewActionButton.backgroundColor = UIColor.red
+    }
+    
+    func buttonConfiguration() {
+        collectionViewActionButton.setTitle("Get New Images", for: .normal)
+        collectionViewActionButton.backgroundColor = UIColor.blue
+        collectionViewActionButton.setTitleColor(UIColor.white, for: .normal)
     }
     
 }

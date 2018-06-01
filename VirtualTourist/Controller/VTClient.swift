@@ -19,7 +19,7 @@ class VTClient: NSObject {
     }
     
     func getImagesFrom(lat: Double, long: Double, pageNumber: Int, completionHandler: @escaping(_ data: [[String:AnyObject]], _ success: Bool, _ errorString: String?) -> Void) {
-
+        
         let url = URL(string: "https://api.flickr.com/services/rest?method=flickr.photos.search&api_key=9f2d4591298eeedac39f2af636aebbc9&lat=\(lat)&lon=\(long)&extras=url_m&format=json&nojsoncallback=?&per_page=21&page=\(pageNumber)")
         
         let request = URLRequest(url: url!)
@@ -32,7 +32,7 @@ class VTClient: NSObject {
             }
             
             guard let data = data else {
-                print("Data says to fuck yourself.")
+                print("Unable to download Flickr data.")
                 return
             }
 
@@ -42,12 +42,12 @@ class VTClient: NSObject {
             }
             
             guard let photos = parsedResult["photos"] as? [String:AnyObject] else {
-                print("No photos, hoe.")
+                print("Unable to parse Photos from parsedResults.")
                 return
             }
             
             guard let photoDict = photos["photo"] as? [[String:AnyObject]] else {
-                print("No photo, hoe.")
+                print("Unable to access the individual photo objects from Flickr.")
                 return
             }
             

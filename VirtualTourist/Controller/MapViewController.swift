@@ -27,29 +27,17 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //View Configuration
         navigationBar.title = "Press to Add A Pin"
         configureMap()
         configureGestureRecognizer()
+        
+        //Access user's data
         fetchSavedPins()
     }
     
-    //MARK: General Configurations
-    func configureMap() {
-        mapView.delegate = self
-        let location = CLLocationCoordinate2DMake(35.6895, 139.6917)
-        let mapSpan = MKCoordinateSpanMake(25.0, 25.0)
-        let region = MKCoordinateRegionMake(location, mapSpan)
-        self.mapView.setRegion(region, animated: true)
-        
-    }
-    
-    func configureGestureRecognizer() {
-        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(addMapAnnotation(press:)))
-        gesture.minimumPressDuration = 0.5
-        mapView.addGestureRecognizer(gesture)
-    }
-    
-    //MARK: User Functionality
+    //MARK: User Experience
     @objc func addMapAnnotation(press: UILongPressGestureRecognizer) {
         if press.state == .began {
             let location = press.location(in: mapView)
@@ -74,9 +62,11 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     }
     
     @IBAction func removePins(_ sender: Any) {
+        //Toggle the UI during Map editing
         changeEditState()
     }
     
+    //MARK: Edit State Configuration
     func changeEditState() {
         editState = !editState
         
@@ -134,7 +124,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         let reuseId = "pin"
         let pinView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseId) as? MKPinAnnotationView
         
-        //Conditional for editing here
+        //When a user presses the "Edit" button, the result of tapping a Pin's callout changes
         if editState {
             for pin in mapPins {
                 if pin.latitude == view.annotation?.coordinate.latitude {
@@ -164,9 +154,11 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         let mapLong: CLLocationDegrees = location.longitude
         let newLocation = CLLocation(latitude: mapLat, longitude: mapLong)
         
+        //Get the city name of a location
         geocoder.reverseGeocodeLocation(newLocation) { (placemark, error) in
             if error == nil {
                 if let newLocationString = placemark?[0] {
+                    //If no Locality or Country exist, show "Unknown"
                     completionHandler("\(newLocationString.locality ?? "Unknown"), \(newLocationString.country ?? "Unknown")")
                 }
             } else {
@@ -174,9 +166,26 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
             }
         }
     }
+    
+    //MARK: General Configurations
+    func configureMap() {
+        mapView.delegate = self
+        let location = CLLocationCoordinate2DMake(35.6895, 139.6917)
+        let mapSpan = MKCoordinateSpanMake(25.0, 25.0)
+        let region = MKCoordinateRegionMake(location, mapSpan)
+        self.mapView.setRegion(region, animated: true)
+        
+    }
+    
+    func configureGestureRecognizer() {
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(addMapAnnotation(press:)))
+        gesture.minimumPressDuration = 0.5
+        mapView.addGestureRecognizer(gesture)
+    }
 }
 
 extension MapViewController {
+    //Send the selected Pin to the Photo Collection View Controller
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let locationView = segue.destination as? LocationCollectionViewController {
             locationView.dataController = dataController

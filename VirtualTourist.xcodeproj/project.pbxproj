@@ -14,7 +14,6 @@
 		8D47F344209D223300F5D1CF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8D47F343209D223300F5D1CF /* Assets.xcassets */; };
 		8D47F347209D223300F5D1CF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D47F345209D223300F5D1CF /* LaunchScreen.storyboard */; };
 		8D47F352209D22EF00F5D1CF /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D47F351209D22EF00F5D1CF /* Constants.swift */; };
-		8D47F354209D231400F5D1CF /* StoredData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D47F353209D231400F5D1CF /* StoredData.swift */; };
 		8D47F357209D2B6500F5D1CF /* VirtualTourist.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8D47F355209D2B6500F5D1CF /* VirtualTourist.xcdatamodeld */; };
 		8D47F359209D2C6F00F5D1CF /* LocationCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D47F358209D2C6F00F5D1CF /* LocationCollectionViewController.swift */; };
 		8D47F35B209D2D0200F5D1CF /* VTClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D47F35A209D2D0200F5D1CF /* VTClient.swift */; };
@@ -32,7 +31,6 @@
 		8D47F346209D223300F5D1CF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8D47F348209D223300F5D1CF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D47F351209D22EF00F5D1CF /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		8D47F353209D231400F5D1CF /* StoredData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredData.swift; sourceTree = "<group>"; };
 		8D47F356209D2B6500F5D1CF /* VirtualTourist.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = VirtualTourist.xcdatamodel; sourceTree = "<group>"; };
 		8D47F358209D2C6F00F5D1CF /* LocationCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCollectionViewController.swift; sourceTree = "<group>"; };
 		8D47F35A209D2D0200F5D1CF /* VTClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VTClient.swift; sourceTree = "<group>"; };
@@ -85,7 +83,6 @@
 			isa = PBXGroup;
 			children = (
 				8D47F351209D22EF00F5D1CF /* Constants.swift */,
-				8D47F353209D231400F5D1CF /* StoredData.swift */,
 				8D47F355209D2B6500F5D1CF /* VirtualTourist.xcdatamodeld */,
 				8DA3DF3420AAC39D0065E86B /* DataController.swift */,
 				8D66D84220AB8A90006568B3 /* MapPinExtension.swift */,
@@ -192,7 +189,6 @@
 				8D47F359209D2C6F00F5D1CF /* LocationCollectionViewController.swift in Sources */,
 				8D47F33A209D223000F5D1CF /* AppDelegate.swift in Sources */,
 				8D66D84320AB8A90006568B3 /* MapPinExtension.swift in Sources */,
-				8D47F354209D231400F5D1CF /* StoredData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
