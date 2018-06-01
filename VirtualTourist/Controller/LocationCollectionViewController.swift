@@ -22,19 +22,20 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     
     var savedPhotos: [LocationPhoto] = [LocationPhoto]()
     var photosToDelete: [IndexPath] = [IndexPath]()
-    var mapViewLat: Double?
-    var mapViewLong: Double?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //Set Delegates
         photoTableView.delegate = self
         locationZoomIn.delegate = self
-        collectionViewActionButton.setTitle("Get New Images", for: .normal)
-        collectionViewActionButton.backgroundColor = UIColor.blue
-        collectionViewActionButton.setTitleColor(UIColor.white, for: .normal)
-        fetchPhotos()
+        
+        //Configure UI
+        buttonConfiguration()
         photoTableView.allowsMultipleSelection = true
         
+        //Download Image Data from CoreData
+        fetchPhotos()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -47,7 +48,6 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         } else {
             fetchPhotos()
         }
-        
     }
     
     //MARK: Core Data Protocols
@@ -73,6 +73,15 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
                     photo.locationPin = self.tappedPin!
                     photo.url_m = photoDict["url_m"] as? String
                     photo.id = photoDict["id"] as? String
+                    
+                    for photo in self.savedPhotos {
+                        if photo.imageData == nil {
+                            if let imageData = try? Data(contentsOf: URL(string: photo.url_m!)!) {
+                                photo.imageData = imageData
+                            }
+                        }
+                    }
+                    
                     self.savedPhotos.append(photo)
                 }
                 
@@ -110,6 +119,12 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         collectionViewActionButton.backgroundColor = UIColor.red
     }
     
+    func buttonConfiguration() {
+        collectionViewActionButton.setTitle("Get New Images", for: .normal)
+        collectionViewActionButton.backgroundColor = UIColor.blue
+        collectionViewActionButton.setTitleColor(UIColor.white, for: .normal)
+    }
+    
     @IBAction func confirmImageSelectionAction(_ sender: Any) {
         if photosToDelete.count >= 1 {
             for photo in photosToDelete {
@@ -136,16 +151,9 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         
         let reuseID = Constants.StoryboardIDs.CellReuseID
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CustomCollectionViewCell
-        cell.cellImageView.image = UIImage(named: "Square")
-
         
-        for photo in savedPhotos {
-            if photo.imageData == nil {
-                if let imageData = try? Data(contentsOf: URL(string: photo.url_m!)!) {
-                    photo.imageData = imageData
-                }
-            }
-        }
+        //Set placeholder image on the Collection Cells
+        cell.cellImageView.image = UIImage(named: "Square")
         
         let cellPhoto = savedPhotos[(indexPath as NSIndexPath).row]
         
@@ -153,12 +161,6 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         if let imageData = cellPhoto.imageData {
             cell.cellImageView.image = UIImage(data: imageData)
             cell.cellImageView.backgroundColor = nil
-        } else {
-            //Default to showing images through calling the URL
-            if let imageData = try? Data(contentsOf: URL(string: cellPhoto.url_m!)!) {
-                cell.cellImageView.image = UIImage(data: imageData)
-                cellPhoto.imageData = imageData
-            }
         }
         
         try? dataController.viewContext.save()
