@@ -53,20 +53,7 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     
     //MARK: User Experience
     @IBAction func confirmImageSelectionAction(_ sender: Any) {
-        if photosToDelete.count >= 1 {
-            for photo in photosToDelete {
-                let index = photo.row
-                dataController.viewContext.delete(savedPhotos[index])
-                savedPhotos.remove(at: index)
-            }
-            photoTableView.deleteItems(at: photosToDelete)
-            try? dataController.viewContext.save()
-            photoTableView.reloadData()
-            photosToDelete.removeAll()
-            defaultButtonStyle()
-        } else {
-            deleteAndGetNewPhotos()
-        }
+        deleteAndGetNewPhotos()
     }
     
     //MARK: Core Data Protocols
@@ -106,17 +93,6 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
                     photo.locationPin = self.tappedPin!
                     photo.url_m = photoDict["url_m"] as? String
                     photo.id = photoDict["id"] as? String
-                    
-                    //Call each URL, download the data, and assign it to the Image Binary property of the LocationPhoto entity
-                    for photo in self.savedPhotos {
-                        if photo.imageData == nil {
-                            if let imageData = try? Data(contentsOf: URL(string: photo.url_m!)!) {
-                                photo.imageData = imageData
-                            }
-                        }
-                    }
-                    
-                    //Save to the local variable where all the data will be accessed by the Collection View
                     self.savedPhotos.append(photo)
                 }
                 
@@ -124,8 +100,8 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
                 DispatchQueue.main.async {
                     self.photoTableView.reloadData()
                 }
-                try? self.dataController.viewContext.save()
             }
+            try? self.dataController.viewContext.save()
         }
     }
     
@@ -137,13 +113,28 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
             }
             savedPhotos.removeAll()
             photosToDelete.removeAll()
+            
+            //Pulls new photos from the next page, then the next page, rather than a random number which might be out of range
+            var page = 2
+            downloadNewImagesAt(page: page)
+            page += 1
+            
             try? dataController.viewContext.save()
             photoTableView.reloadData()
+            print("Saved photos after a new page request: \(savedPhotos.count)")
+        } else {
+            for photo in photosToDelete {
+                let index = photo.row
+                dataController.viewContext.delete(savedPhotos[index])
+                savedPhotos.remove(at: index)
+            }
+            photoTableView.deleteItems(at: photosToDelete)
+            photoTableView.reloadData()
+            photosToDelete.removeAll()
+            try? dataController.viewContext.save()
+            defaultButtonStyle()
+            print("Saved photos after deleting selected photos: \(savedPhotos.count)")
         }
-        //Pulls new photos from the next page, then the next page, rather than a random number which might be out of range
-        var page = 2
-        downloadNewImagesAt(page: page)
-        page += 1
     }
     
 
@@ -157,15 +148,29 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         let reuseID = Constants.StoryboardIDs.CellReuseID
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CustomCollectionViewCell
         
-        //Set placeholder image on the Collection Cells
-        cell.cellImageView.image = UIImage(named: "Square")
+        for photo in savedPhotos {
+            if photo.imageData == nil {
+                if let urlString = photo.url_m {
+                    if let imageData = try? Data(contentsOf: URL(string: urlString)!) {
+                        photo.imageData = imageData
+                    }
+                }
+            }
+        }
         
         let cellPhoto = savedPhotos[(indexPath as NSIndexPath).row]
         
         //Try showing images from memory
         if let imageData = cellPhoto.imageData {
             cell.cellImageView.image = UIImage(data: imageData)
-            cell.cellImageView.backgroundColor = nil
+        } else {
+            //Default to showing images through calling the URL
+            if let urlString = cellPhoto.url_m {
+                if let imageData = try? Data(contentsOf: URL(string: urlString)!) {
+                    cell.cellImageView.image = UIImage(data: imageData)
+                    cellPhoto.imageData = imageData
+                }
+            }
         }
         
         try? dataController.viewContext.save()
@@ -176,6 +181,7 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         //Toggle the state of the Delete Photos confirmation button
         deleteImagesState()
         photosToDelete.append(indexPath)
+        print("Photos to delete: \(photosToDelete.count)")
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
@@ -187,6 +193,8 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         if photosToDelete.isEmpty {
             defaultButtonStyle()
         }
+        
+        print("Photos to delete, after deselect: \(photosToDelete.count)")
     }
     
     //MARK: Zoomed Map Configuration
