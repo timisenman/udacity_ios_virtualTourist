@@ -42,6 +42,7 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         super.viewWillAppear(animated)
         configureMapZoom()
         fetchPhotos()
+        print("Saved Photos: \(savedPhotos.count)")
         
         //Fetch the LocationPhotos if they exist, otherwise download the photos of that location
         if savedPhotos.count < 1 {
@@ -53,7 +54,7 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     
     //MARK: User Experience
     @IBAction func confirmImageSelectionAction(_ sender: Any) {
-        deleteAndGetNewPhotos()
+        deleteSelectedPhotos()
     }
     
     //MARK: Core Data Protocols
@@ -73,6 +74,8 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     func downloadNewImagesAt(page: Int) {
         VTClient.shared.getImagesFrom(lat: tappedPin.latitude, long: tappedPin.longitude, pageNumber: page, perPage: nil) { (dictionary, success, string) in
             
+//            let context = try? self.dataController.viewContext.object(with: self.tappedPin.objectID)
+            
             guard let successfulDownload = success else {
                 fatalError("Unsuccessful download Flickr Data.")
             }
@@ -87,10 +90,15 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
                     print("Dictionary item count: \(flickrDictionary.count)")
                     self.displayUIAlert(with: "Sorry, there are no images from this place.")
                 }
+                
                 //Parse the dictionary of data downloaded from Flickr and assign the properties of the individual photos
                 for photoDict in flickrDictionary {
+                    
                     let photo = LocationPhoto(context: self.dataController.viewContext)
-                    photo.locationPin = self.tappedPin!
+                    
+                    if let pin = try? self.dataController.viewContext.object(with: self.tappedPin.objectID) {
+                        photo.locationPin = pin as? LocationPin
+                    }
                     photo.url_m = photoDict["url_m"] as? String
                     photo.id = photoDict["id"] as? String
                     self.savedPhotos.append(photo)
@@ -106,32 +114,39 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     }
     
     //Deletes and pulls new images upon user request.
+    
+    
     func deleteAndGetNewPhotos() {
-        if photosToDelete.count == 0 {
-            for photo in savedPhotos {
-                dataController.viewContext.delete(photo)
-            }
-            savedPhotos.removeAll()
-            photosToDelete.removeAll()
-            
-            //Pulls new photos from the next page, then the next page, rather than a random number which might be out of range
-            var page = 2
-            downloadNewImagesAt(page: page)
-            page += 1
-            
-            try? dataController.viewContext.save()
-            photoTableView.reloadData()
-            print("Saved photos after a new page request: \(savedPhotos.count)")
-        } else {
+        for photo in savedPhotos {
+            dataController.viewContext.delete(photo)
+        }
+        savedPhotos.removeAll()
+        photosToDelete.removeAll()
+        
+        //Pulls new photos from the next page, then the next page, rather than a random number which might be out of range
+        var page = 2
+        downloadNewImagesAt(page: page)
+        page += 1
+        
+        try? dataController.viewContext.save()
+        DispatchQueue.main.async {
+            self.photoTableView.reloadData()
+        }
+        print("Saved photos after a new page request: \(savedPhotos.count)")
+    }
+    
+    func deleteSelectedPhotos() {
+        if photosToDelete.count >= 1 {
             for photo in photosToDelete {
                 let index = photo.row
+                print(savedPhotos[index])
                 dataController.viewContext.delete(savedPhotos[index])
                 savedPhotos.remove(at: index)
             }
             photoTableView.deleteItems(at: photosToDelete)
-            photoTableView.reloadData()
-            photosToDelete.removeAll()
             try? dataController.viewContext.save()
+            self.photoTableView.reloadData()
+            photosToDelete.removeAll()
             defaultButtonStyle()
             print("Saved photos after deleting selected photos: \(savedPhotos.count)")
         }
@@ -147,6 +162,7 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         
         let reuseID = Constants.StoryboardIDs.CellReuseID
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CustomCollectionViewCell
+        cell.activityIndicator.startAnimating()
         
         for photo in savedPhotos {
             if photo.imageData == nil {
@@ -163,12 +179,14 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         //Try showing images from memory
         if let imageData = cellPhoto.imageData {
             cell.cellImageView.image = UIImage(data: imageData)
+            cell.activityIndicator.stopAnimating()
         } else {
             //Default to showing images through calling the URL
             if let urlString = cellPhoto.url_m {
                 if let imageData = try? Data(contentsOf: URL(string: urlString)!) {
                     cell.cellImageView.image = UIImage(data: imageData)
                     cellPhoto.imageData = imageData
+                    cell.activityIndicator.stopAnimating()
                 }
             }
         }

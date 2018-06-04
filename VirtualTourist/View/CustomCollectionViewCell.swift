@@ -11,6 +11,8 @@ import UIKit
 class CustomCollectionViewCell: UICollectionViewCell {
     
     @IBOutlet weak var cellImageView: UIImageView!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
     
     //When cells are selected in a collection view, the dim to show that they've been selected
     override var isSelected: Bool {
