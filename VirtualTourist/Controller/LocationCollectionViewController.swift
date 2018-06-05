@@ -94,8 +94,6 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
                     if let pin = try? self.dataController.viewContext.object(with: self.tappedPin.objectID) {
                         photo.locationPin = pin as? LocationPin
                     }
-                    
-//                    photo.locationPin = self.tappedPin!
                     photo.url_m = photoDict["url_m"] as? String
                     photo.id = photoDict["id"] as? String
                     self.savedPhotos.append(photo)
@@ -196,13 +194,15 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
             cell.activityIndicator.stopAnimating()
         } else {
             //Default to downloading them again
-            downloadImage(imagePath: cellPhoto.url_m!) { (data, string) in
-                DispatchQueue.main.async {
-                    if let data = data {
-                        cell.cellImageView.image = UIImage(data: data)
-                        cellPhoto.imageData = data
-                        cell.activityIndicator.stopAnimating()
-                        try? self.dataController.viewContext.save()
+            if let imageUrl = cellPhoto.url_m {
+                downloadImage(imagePath: imageUrl) { (data, string) in
+                    DispatchQueue.main.async {
+                        if let data = data {
+                            cell.cellImageView.image = UIImage(data: data)
+                            cellPhoto.imageData = data
+                            cell.activityIndicator.stopAnimating()
+                            try? self.dataController.viewContext.save()
+                        }
                     }
                 }
             }
