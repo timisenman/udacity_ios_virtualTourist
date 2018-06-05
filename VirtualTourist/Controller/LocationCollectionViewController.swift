@@ -45,7 +45,7 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         print("Saved Photos: \(savedPhotos.count)")
         
         //Fetch the LocationPhotos if they exist, otherwise download the photos of that location
-        if savedPhotos.count < 1 {
+        if savedPhotos.count == 0 {
             downloadNewImagesAt(page: 1)
         } else {
             fetchPhotos()
@@ -54,7 +54,12 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     
     //MARK: User Experience
     @IBAction func confirmImageSelectionAction(_ sender: Any) {
-        deleteSelectedPhotos()
+        if photosToDelete.count >= 1 {
+            deleteSelectedPhotos()
+        } else if photosToDelete.count == 0 {
+            deleteAndGetNewPhotos()
+        }
+        print("Saved photos after a delete: \(savedPhotos.count)")
     }
     
     //MARK: Core Data Protocols
@@ -74,31 +79,23 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     func downloadNewImagesAt(page: Int) {
         VTClient.shared.getImagesFrom(lat: tappedPin.latitude, long: tappedPin.longitude, pageNumber: page, perPage: nil) { (dictionary, success, string) in
             
-//            let context = try? self.dataController.viewContext.object(with: self.tappedPin.objectID)
-            
-            guard let successfulDownload = success else {
-                fatalError("Unsuccessful download Flickr Data.")
-            }
-            
-            guard let flickrDictionary = dictionary else {
-                fatalError("No photos available in Flickr request.")
-            }
-            
-            if successfulDownload {
+            if success {
                 
-                if flickrDictionary.count == 0 {
-                    print("Dictionary item count: \(flickrDictionary.count)")
+                if dictionary.count == 0 {
+                    print("Dictionary item count: \(dictionary.count)")
                     self.displayUIAlert(with: "Sorry, there are no images from this place.")
                 }
                 
                 //Parse the dictionary of data downloaded from Flickr and assign the properties of the individual photos
-                for photoDict in flickrDictionary {
+                for photoDict in dictionary {
                     
                     let photo = LocationPhoto(context: self.dataController.viewContext)
                     
                     if let pin = try? self.dataController.viewContext.object(with: self.tappedPin.objectID) {
                         photo.locationPin = pin as? LocationPin
                     }
+                    
+//                    photo.locationPin = self.tappedPin!
                     photo.url_m = photoDict["url_m"] as? String
                     photo.id = photoDict["id"] as? String
                     self.savedPhotos.append(photo)
@@ -114,32 +111,29 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
     }
     
     //Deletes and pulls new images upon user request.
-    
-    
     func deleteAndGetNewPhotos() {
         for photo in savedPhotos {
             dataController.viewContext.delete(photo)
         }
         savedPhotos.removeAll()
         photosToDelete.removeAll()
-        
+
         //Pulls new photos from the next page, then the next page, rather than a random number which might be out of range
         var page = 2
         downloadNewImagesAt(page: page)
         page += 1
-        
+
         try? dataController.viewContext.save()
         DispatchQueue.main.async {
             self.photoTableView.reloadData()
         }
         print("Saved photos after a new page request: \(savedPhotos.count)")
     }
-    
+
     func deleteSelectedPhotos() {
         if photosToDelete.count >= 1 {
             for photo in photosToDelete {
                 let index = photo.row
-                print(savedPhotos[index])
                 dataController.viewContext.delete(savedPhotos[index])
                 savedPhotos.remove(at: index)
             }
@@ -173,6 +167,13 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
                 }
             }
         }
+//        for photo in savedPhotos {
+//            if photo.imageData == nil {
+//                if let imageData = try? Data(contentsOf: URL(string: photo.url_m!)!) {
+//                    photo.imageData = imageData
+//                }
+//            }
+//        }
         
         let cellPhoto = savedPhotos[(indexPath as NSIndexPath).row]
         
@@ -181,8 +182,8 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
             cell.cellImageView.image = UIImage(data: imageData)
             cell.activityIndicator.stopAnimating()
         } else {
-            //Default to showing images through calling the URL
             if let urlString = cellPhoto.url_m {
+                //Default to showing images through calling the URL
                 if let imageData = try? Data(contentsOf: URL(string: urlString)!) {
                     cell.cellImageView.image = UIImage(data: imageData)
                     cellPhoto.imageData = imageData
