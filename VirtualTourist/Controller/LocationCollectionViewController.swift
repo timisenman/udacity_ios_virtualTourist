@@ -110,6 +110,24 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         }
     }
     
+    func downloadImage( imagePath:String, completionHandler: @escaping (_ imageData: Data?, _ errorString: String?) -> Void){
+        let session = URLSession.shared
+        let imgURL = NSURL(string: imagePath)
+        let request: NSURLRequest = NSURLRequest(url: imgURL! as URL)
+        
+        let task = session.dataTask(with: request as URLRequest) {data, response, downloadError in
+            
+            if downloadError != nil {
+                completionHandler(nil, "Could not download image \(imagePath)")
+            } else {
+                
+                completionHandler(data, nil)
+            }
+        }
+        
+        task.resume()
+    }
+    
     //Deletes and pulls new images upon user request.
     func deleteAndGetNewPhotos() {
         for photo in savedPhotos {
@@ -156,24 +174,19 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
         
         let reuseID = Constants.StoryboardIDs.CellReuseID
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CustomCollectionViewCell
+        
+        cell.cellImageView.image = UIImage(named: "Square")
         cell.activityIndicator.startAnimating()
         
         for photo in savedPhotos {
             if photo.imageData == nil {
                 if let urlString = photo.url_m {
-                    if let imageData = try? Data(contentsOf: URL(string: urlString)!) {
-                        photo.imageData = imageData
+                    downloadImage(imagePath: urlString) { (data, errorString) in
+                        photo.imageData = data
                     }
                 }
             }
         }
-//        for photo in savedPhotos {
-//            if photo.imageData == nil {
-//                if let imageData = try? Data(contentsOf: URL(string: photo.url_m!)!) {
-//                    photo.imageData = imageData
-//                }
-//            }
-//        }
         
         let cellPhoto = savedPhotos[(indexPath as NSIndexPath).row]
         
@@ -182,12 +195,15 @@ class LocationCollectionViewController: UIViewController, UICollectionViewDelega
             cell.cellImageView.image = UIImage(data: imageData)
             cell.activityIndicator.stopAnimating()
         } else {
-            if let urlString = cellPhoto.url_m {
-                //Default to showing images through calling the URL
-                if let imageData = try? Data(contentsOf: URL(string: urlString)!) {
-                    cell.cellImageView.image = UIImage(data: imageData)
-                    cellPhoto.imageData = imageData
-                    cell.activityIndicator.stopAnimating()
+            //Default to downloading them again
+            downloadImage(imagePath: cellPhoto.url_m!) { (data, string) in
+                DispatchQueue.main.async {
+                    if let data = data {
+                        cell.cellImageView.image = UIImage(data: data)
+                        cellPhoto.imageData = data
+                        cell.activityIndicator.stopAnimating()
+                        try? self.dataController.viewContext.save()
+                    }
                 }
             }
         }
