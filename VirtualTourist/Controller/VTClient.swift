@@ -20,7 +20,24 @@ class VTClient: NSObject {
     
     func getImagesFrom(lat: Double, long: Double, pageNumber: Int, perPage: Int?, completionHandler: @escaping(_ data: [[String:AnyObject]], _ success: Bool, _ errorString: String?) -> Void) {
         
-        let url = URL(string: "https://api.flickr.com/services/rest?method=flickr.photos.search&api_key=9f2d4591298eeedac39f2af636aebbc9&lat=\(lat)&lon=\(long)&extras=url_m&format=json&nojsoncallback=?&per_page=\(perPage ?? 21)&page=\(pageNumber)")
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "api.flickr.com"
+        components.path = "/services/rest/"
+        
+        let method = URLQueryItem(name: "method", value: "flickr.photos.search")
+        let apiKey = URLQueryItem(name: "api_key", value: "9f2d4591298eeedac39f2af636aebbc9")
+        let queryLat = URLQueryItem(name: "lat", value: "\(lat)")
+        let queryLong = URLQueryItem(name: "lon", value: "\(long)")
+        let extras = URLQueryItem(name: "extras", value: "url_m")
+        let format = URLQueryItem(name: "format", value: "json")
+        let callBack = URLQueryItem(name: "nojsoncallback", value: "?")
+        let itemsPerPage = URLQueryItem(name: "per_page", value: "\(perPage ?? 21)")
+        let page = URLQueryItem(name: "page", value: "\(pageNumber)")
+        
+        components.queryItems = [method, apiKey, queryLat, queryLong, extras, format, callBack, itemsPerPage, page]
+        
+        let url = components.url
         
         let request = URLRequest(url: url!)
         
